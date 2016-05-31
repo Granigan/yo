@@ -5,16 +5,23 @@
   </head>
   <body>
 
+    <div class="myDiv">myDiv class</div>
+    <div class="myDiv">myDiv class</div>
+    <div class="myDiv">myDiv class</div>
+    <div id="myDiv">myDiv id</div>
 
-    <div class="myDiv"></div>
-    <div id="myDiv"></div>
+    <div id="inside">
+      element will be somewhere here
+      <div class="yay">here is yay element</div>
+    </div>
 
     <script type="text/javascript">
-      yo.$('#myDiv').css({height: '200px'});
-      yo.$('#myDiv').style.backgroundColor = 'red';
+      yo.css(yo.$('#myDiv'), {height: '200px', backgroundColor: 'orange'});
+      yo.css('.myDiv', {backgroundColor: 'green'});
 
       console.log('element with class', yo.$('.myDiv'));
       console.log('element with id', yo.$('#myDiv'));
+      console.log('element with a context', yo.$('.yay', yo.$('#inside')));
     </script>
 
 

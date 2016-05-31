@@ -23,6 +23,12 @@
     return val && yo.isObject(val) && val.constructor === Array;
   };
 
+  yo.prototype.flatten = function(arr) {
+    return yo.reduce(arr, function(a, b) {
+      return a.concat(b);
+    }, []);
+  };
+
   yo.prototype.$ = function(selector, context) {
     var element;
 
@@ -32,20 +38,25 @@
 
     context = context || document;
 
-    var isClass = selector.match(/^\.[\w\d]/);
-    var isId = selector.match(/^\#[\w\d]/);
-
-    if(context.querySelectorAll) {
-      if(isId) {
-        element = context.querySelector(selector);
-      } else {
-        element = context.querySelectorAll(selector);
-      }
+    if(yo.isObject(selector) || yo.isArray(selector)) {
+      element = selector;
     } else {
-      if(isClass) {
-        element = context.getElementsByClassName(selector.replace('.', ''));
-      } else if(isId) {
-        element = context.getElementById(selector.replace('#', ''));
+
+      var isClass = selector.match(/^\.[\w\d]/);
+      var isId = selector.match(/^\#[\w\d]/);
+
+      if(context.querySelectorAll) {
+        if(isId) {
+          element = context.querySelector(selector);
+        } else {
+          element = context.querySelectorAll(selector);
+        }
+      } else {
+        if(isClass) {
+          element = context.getElementsByClassName(selector.replace('.', ''));
+        } else if(isId) {
+          element = context.getElementById(selector.replace('#', ''));
+        }
       }
     }
 
@@ -70,12 +81,22 @@
     }
 
     var result = [];
-    for(var i = 0; i < arr.length; ++i) {
-      result.push(callback(arr[i]));
-    }
+    yo.each(arr, function(data) {
+      result.push(callback(data));
+    });
 
     return result;
-  }
+  };
+
+  yo.prototype.each = function(arr, callback) {
+    if(yo.isFunction(arr.forEach)) {
+      return arr.forEach(callback);
+    }
+
+    for(var i = 0; i < arr.length; ++i) {
+      callback(arr[i]);
+    }
+  };
 
   yo.prototype.extend = function(obj, val) {
     var newObj = {};
@@ -93,10 +114,19 @@
 
   yo.prototype.css = function(selector, attr) {
     var elements = yo.$(selector);
-    if(yo.isArray(elements)) {
-      elements.apply(attr)
+
+    var setStyle = function(element) {
+      yo.each(yo.keys(attr), function(prop) {
+        element.style[prop] = attr[prop];
+      });
+    };
+
+    if(elements.length) {
+      yo.each(elements, function(element) {
+        setStyle(element);
+      });
     } else {
-      elements.style = attr;
+      setStyle(elements)
     }
   };
 
