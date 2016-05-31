@@ -1,0 +1,23 @@
+<html>
+  <head>
+    <title>Selector</title>
+    <script type="text/javascript" src="../yo.js"></script>
+  </head>
+  <body>
+
+
+    <div class="myDiv"></div>
+    <div id="myDiv"></div>
+
+    <script type="text/javascript">
+      yo.$('#myDiv').css({height: '200px'});
+      yo.$('#myDiv').style.backgroundColor = 'red';
+
+      console.log('element with class', yo.$('.myDiv'));
+      console.log('element with id', yo.$('#myDiv'));
+    </script>
+
+
+  </body>
+</html>
+
