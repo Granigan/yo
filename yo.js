@@ -162,9 +162,7 @@
     };
 
     if(elements.length) {
-      yo.each(elements, function(element) {
-        setStyle(element);
-      });
+      yo.each(elements, setStyle);
     } else {
       setStyle(elements)
     }
@@ -248,6 +246,35 @@
     };
 
     return result;
+  };
+
+  yo.prototype.binarySearch = function(arr, value) {
+    var search = function(start, end) {
+      if(start > end) {
+        return null;
+      }
+      if(arr[start] === value) {
+        return start;
+      }
+      if(arr[end] === value) {
+        return end;
+      }
+
+      var middle = Math.floor((start + end) / 2);
+      var middleValue = arr[middle];
+
+      if(middleValue === value) {
+        return middleValue;
+      } else if(middleValue > value) {
+        return search(start + 1, middle);
+      } else if(middleValue < value) {
+        return search(middle, end - 1);
+      }
+
+      return null;
+    };
+
+    return search(0, yo.size(arr) - 1);
   };
 
   yo.prototype.size = function(val) {
