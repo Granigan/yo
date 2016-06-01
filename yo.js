@@ -8,15 +8,19 @@
   };
 
   yo.prototype.isString = function(val) {
-    return typeof val === 'string'
+    return typeof val === 'string';
+  };
+
+  yo.prototype.isNumber = function(val) {
+    return typeof val === 'number';
   };
 
   yo.prototype.isObject = function(val) {
-    return typeof val === 'object'
+    return typeof val === 'object';
   };
 
   yo.prototype.isFunction = function(val) {
-    return typeof val === 'function'
+    return typeof val === 'function';
   };
 
   yo.prototype.isArray = function(val) {
@@ -29,14 +33,36 @@
     }, []);
   };
 
+  yo.prototype.error = function(str) {
+    throw new Error(str);
+  };
+
+  yo.prototype.random = function(min, max) {
+    if(yo.isUndefined(min)) {
+      min = 0;
+    }
+
+    if(yo.isUndefined(max)) {
+      max = 1;
+    }
+
+    if(!yo.isNumber(min) || !yo.isNumber(max)) {
+      yo.error('No numbers provided');
+    }
+
+    return Math.floor(Math.random() * (max - min + 1) + min);
+  };
+
   yo.prototype.$ = function(selector, context) {
     var element;
 
     if(typeof document === 'undefined') {
-      throw new Error('document object not found, are you in node?')
+      yo.error('document object not found, are you in node?');
     }
 
-    context = context || document;
+    if(yo.isUndefined(selector)) {
+      yo.error('No selector provided');
+    }
 
     if(yo.isObject(selector) || yo.isArray(selector)) {
       element = selector;
@@ -44,6 +70,12 @@
 
       var isClass = selector.match(/^\.[\w\d]/);
       var isId = selector.match(/^\#[\w\d]/);
+
+      if(yo.isString(context)) {
+        context = yo.$(context);
+      }
+
+      context = context || document;
 
       if(context.querySelectorAll) {
         if(isId) {
@@ -71,9 +103,17 @@
     return keys;
   };
 
+  yo.prototype.range = yo.prototype.times = function(n) {
+    var arr = [];
+    for(var i = 0; i < n; i++) {
+      arr.push(i);
+    }
+    return arr;
+  }
+
   yo.prototype.map = function(arr, callback) {
     if(!yo.isArray(arr)) {
-      throw new Error('No array given');
+      yo.error('No array given');
     }
 
     if(yo.isFunction(arr.map)) {
@@ -143,37 +183,114 @@
     return word === word.split('').reverse().join('');
   };
 
+  yo.prototype.fibonacci = function(n) {
+    n = n || 0;
+
+    if(n < 1) {
+      return 0;
+    }
+
+    if(n <= 2) {
+      return 1;
+    }
+
+    return yo.fibonacci(n - 1) + yo.fibonacci(n - 2);
+  };
+
   yo.prototype.reduce = function(arr, callback, initialValue) {
-    if(typeof arr === 'undefined') {
-      throw new Error('No array given');
-      return;
+    if(yo.isUndefined(arr)) {
+      yo.error('No array given');
     }
 
     if(yo.isFunction(arr.reduce)) {
       return arr.reduce(callback, initialValue);
     }
 
-    for(var i = 0; i < arr.length; ++i) {
-      initialValue = callback(initialValue, arr[i]);
-    }
+    yo.each(arr, function(value) {
+      initialValue = callback(initialValue, value, arr);
+    });
 
     return initialValue;
   };
 
+  yo.prototype.listMethods = function(func) {
+    return yo.keys(func || yo);
+  };
 
-  yo = new yo;
+  yo.prototype.reservedWords = function() {
+    return [
+      'abstract', 'else', 'instanceof', 'super',
+      'boolean','enum', 'int', 'switch',
+      'break','export', 'interface', 'synchronized',
+      'byte', 'extends', 'let', 'this',
+      'case', 'false', 'long', 'throw',
+      'catch', 'final', 'native', 'throws',
+      'char', 'finally', 'new', 'transient',
+      'class', 'float', 'null', 'true',
+      'const', 'for', 'package', 'try',
+      'continue', 'function', 'private', 'typeof',
+      'debugger', 'goto', 'protected', 'var',
+      'default', 'if', 'public', 'void',
+      'delete', 'implements', 'return', 'volatile',
+      'do', 'import', 'short', 'while',
+      'double', 'in', 'static', 'with'
+    ];
+  };
+
+  yo.prototype.find = function(arr, item) {
+    var result;
+
+    for (var i = arr.length - 1; i >= 0; i--) {
+      if(arr[i] === item) {
+        result = arr[i];
+        break;
+      }
+    };
+
+    return result;
+  };
+
+  yo.prototype.size = function(val) {
+    if(yo.isString(val) || yo.isArray(val)) {
+      return val.length;
+    }
+
+    if(yo.isObject(val)) {
+      return yo.size(yo.keys(val));
+    }
+
+    yo.error('yo.size only accepts: arrays, strings, objects');
+  };
+
+  yo.prototype.validateMethodNames = function(func) {
+    var invalidMethodNames = yo.reduce(yo.listMethods(func), function(value, method) {
+      var match = yo.find(yo.reservedWords(), method);
+      if(match) {
+        value.push(match);
+      }
+
+      return value;
+    }, []);
+
+    return yo.size(invalidMethodNames) ? invalidMethodNames : true;
+  };
+
+  yo.prototype.exportModule = function(name, func) {
+    if(typeof module !== 'undefined' && module.exports) {
+      module.exports = func;
+    }
+
+    if(typeof window !== 'undefined') {
+      window[name] = func;
+    }
+
+    if (typeof define === 'function' && define.amd) {
+      define([name], func);
+    }
+  };
 
 
-  if(typeof module !== 'undefined' && module.exports) {
-    module.exports = yo;
-  }
-
-  if(typeof window !== 'undefined') {
-    window.yo = yo;
-  }
-
-  if (typeof define === 'function' && define.amd) {
-    define(['yo'], yo);
-  }
+  yo = new yo();
+  yo.exportModule('yo', yo)
 
 })();
