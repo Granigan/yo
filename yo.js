@@ -203,6 +203,28 @@
     return yo.fibonacci(n - 1) + yo.fibonacci(n - 2);
   };
 
+  yo.prototype.fizzbuzz = function() {
+    return yo.chain(yo.range(101))
+      .rest()
+      .map(function(i) {
+        var fizz = 'Fizz';
+        var buzz = 'Buzz';
+        var three = i % 3 === 0;
+        var five = i % 5 === 0;
+
+        if(three && five) {
+          return fizz + buzz;
+        } else if(three) {
+          return fizz;
+        } else if(five) {
+          return buzz;
+        }
+
+        return i;
+      })
+      .value();
+  };
+
   yo.prototype.reduce = function(arr, callback, initialValue) {
     if(yo.isUndefined(arr)) {
       yo.error('No array given');
