@@ -272,8 +272,14 @@
       return yo.binarySearch(arr, item);
     }
 
+    if(yo.isFunction(arr.find)) {
+      return arr.find(yo.isFunction(item) ? item : function(value) {
+        return value === item;
+      });
+    }
+
     for (var i = arr.length - 1; i >= 0; i--) {
-      if(arr[i] === item) {
+      if(yo.isFunction(item) ? item(arr[i]) : arr[i] === item) {
         result = arr[i];
         break;
       }
