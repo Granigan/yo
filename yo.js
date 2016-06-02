@@ -396,6 +396,22 @@
     }
   };
 
+  yo.prototype.filter = function(arr, callback) {
+    if(yo.isUndefined(arr)) {
+      yo.error('No array provided');
+    }
+    if(yo.isFunction(arr.filter)) {
+      return arr.filter(callback);
+    }
+
+    return yo.reduce(arr, function(value, item) {
+      if(callback(item)) {
+        value.push(item);
+      }
+      return value;
+    }, []);
+  };
+
   yo.prototype.exportModule = function(name, func) {
     if(typeof module !== 'undefined' && module.exports) {
       module.exports = func;
