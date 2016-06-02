@@ -12,7 +12,7 @@
   };
 
   yo.prototype.isNumber = function(val) {
-    return typeof val === 'number';
+    return typeof val === 'number' && val.constructor === Number;
   };
 
   yo.prototype.isObject = function(val) {
@@ -25,6 +25,14 @@
 
   yo.prototype.isArray = function(val) {
     return val && yo.isObject(val) && val.constructor === Array;
+  };
+
+  yo.prototype.isEqual = function(a, b) {
+    return a === b;
+  };
+
+  yo.prototype.isFinite = function(n) {
+    return yo.isNumber(n) && Number.isFinite(n);
   };
 
   yo.prototype.flatten = function(arr) {
@@ -176,7 +184,7 @@
       return true;
     }
 
-    var word = str.toLowerCase().replace(/[\W_]/g, '');
+    var word = yo.lowercase(str).replace(/[\W_]/g, '');
 
     return word === word.split('').reverse().join('');
   };
@@ -235,8 +243,12 @@
     ];
   };
 
-  yo.prototype.find = function(arr, item) {
+  yo.prototype.find = function(arr, item, useBinarySearch) {
     var result;
+
+    if(useBinarySearch) {
+      return yo.binarySearch(arr, item);
+    }
 
     for (var i = arr.length - 1; i >= 0; i--) {
       if(arr[i] === item) {
@@ -246,6 +258,19 @@
     };
 
     return result;
+  };
+
+  yo.prototype.findKey = function(obj, item) {
+    return obj[item] || false;
+  };
+
+  yo.prototype.arrayToObject = function(arr, value) {
+    value = value || true;
+
+    return yo.reduce(arr, function(obj, key) {
+      obj[key] = value;
+      return obj;
+    }, {});
   };
 
   yo.prototype.binarySearch = function(arr, value) {
@@ -291,7 +316,7 @@
 
   yo.prototype.validateMethodNames = function(func) {
     var invalidMethodNames = yo.reduce(yo.listMethods(func), function(value, method) {
-      var match = yo.find(yo.reservedWords(), method);
+      var match = yo.findKey(yo.arrayToObject(yo.reservedWords()), method);
       if(match) {
         value.push(match);
       }
@@ -300,6 +325,75 @@
     }, []);
 
     return yo.size(invalidMethodNames) ? invalidMethodNames : true;
+  };
+
+  yo.prototype.first = function(arr) {
+    return arr[0];
+  };
+
+  yo.prototype.last = function(arr) {
+    return arr[arr.length - 1];
+  };
+
+  yo.prototype.rest = function(arr) {
+    return arr.slice(1, arr.length);
+  };
+
+  yo.prototype.drop = function(arr, n) {
+    return arr.slice(n);
+  };
+
+  yo.prototype.dropRight = function(arr, n) {
+    if(n > arr.length - 1) {
+      return [];
+    }
+    return arr.slice(0, arr.length - n);
+  };
+
+  yo.prototype.gt = function(a, b) {
+    return a > b;
+  };
+
+  yo.prototype.gte = function(a, b) {
+    return a >= b;
+  };
+
+  yo.prototype.lt = function(a, b) {
+    return a < b;
+  };
+
+  yo.prototype.lte = function(a, b) {
+    return a <= b;
+  };
+
+  yo.prototype.uppercase = function(str) {
+    return str.toUpperCase();
+  };
+
+  yo.prototype.lowercase = function(str) {
+    return str.toLowerCase();
+  };
+
+  var noLocalStorage = function() {
+    if(yo.isUndefined(window) || yo.isUndefined(window.localStorage)) {
+      yo.error('No localStorage support');
+    }
+  };
+
+  yo.prototype.localstorage = {
+    get: function(key) {
+      noLocalStorage();
+      return JSON.parse(window.localStorage.getItem(key));
+    },
+    set: function(key, value) {
+      noLocalStorage();
+
+      window.localStorage.setItem(key, JSON.stringify(value));
+    },
+    remove: function(key) {
+      noLocalStorage();
+      window.localStorage.removeItem(key);
+    }
   };
 
   yo.prototype.exportModule = function(name, func) {
@@ -318,6 +412,11 @@
 
 
   yo = new yo();
-  yo.exportModule('yo', yo)
+  yo.exportModule('yo', yo);
+
+  var validatedMethodNames = yo.validateMethodNames();
+  if(validatedMethodNames !== true) {
+    yo.error('Invalid method names in yo library!\nInvalid method names: ' + validatedMethodNames.join(', '));
+  }
 
 })();
