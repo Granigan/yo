@@ -264,6 +264,18 @@
     return obj[item] || false;
   };
 
+  yo.prototype.pick = function(arr, query) {
+    return yo.reduce(arr, function(value, item) {
+      for(var prop in query) {
+        if(item[prop] && yo.isEqual(item[prop], query[prop])) {
+          value.push(item);
+        }
+      }
+
+      return value;
+    }, []);
+  };
+
   yo.prototype.arrayToObject = function(arr, value) {
     value = value || true;
 
@@ -411,6 +423,67 @@
       return value;
     }, []);
   };
+
+  yo.prototype.chain = function(data) {
+    return {
+      filter: function(callback) {
+        data = yo.filter(data, callback);
+        return this;
+      },
+      map: function(callback) {
+        data = yo.map(data, callback);
+        return this;
+      },
+      reduce: function(callback, initialValue) {
+        data = yo.reduce(data, callback, initialValue);
+        return this;
+      },
+      find: function(callback) {
+        data = yo.find(data, callback);
+        return this;
+      },
+      findKey: function(callback) {
+        data = yo.findKey(data, callback);
+        return this;
+      },
+      pick: function(callback) {
+        data = yo.pick(data, callback);
+        return this;
+      },
+      flatten: function(callback) {
+        data = yo.flatten(data, callback);
+        return this;
+      },
+      first: function() {
+        data = yo.first(data);
+        return this;
+      },
+      rest: function() {
+        data = yo.rest(data);
+        return this;
+      },
+      drop: function(n) {
+        data = yo.drop(data, n);
+        return this;
+      },
+      dropRight: function(n) {
+        data = yo.dropRight(data, n);
+        return this;
+      },
+      value: function() {
+        return data;
+      }
+    };
+  };
+
+  yo.prototype.kitten = function() {
+    yo.each(yo.times(yo.random(5, 20)), function() {
+      var color = (yo.random() ? yo.random() ? 'green' : 'red' : yo.random() ? 'orange': 'blue')
+      var meow = function() { return yo.random() ? 'meow' : 'purrr'; };
+      var allTheMeows = yo.map(yo.times(yo.random(1, yo.random(2, 4))), meow).join(' ')
+      console.log('%c' + allTheMeows, 'color: ' + color);
+    });
+  }
 
   yo.prototype.exportModule = function(name, func) {
     if(typeof module !== 'undefined' && module.exports) {
