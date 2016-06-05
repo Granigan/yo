@@ -35,6 +35,16 @@
     return yo.isNumber(n) && Number.isFinite(n);
   };
 
+  yo.prototype.isPositive = function(n) {
+    return yo.isFinite(n) && n > 0;
+  };
+
+  yo.prototype.isNegative = function(n) {
+    return yo.isFinite(n) && n < 0;
+  };
+
+  yo.prototype.noop = function() {};
+
   yo.prototype.flatten = function(arr) {
     return yo.reduce(arr, function(a, b) {
       return a.concat(b);
@@ -43,6 +53,24 @@
 
   yo.prototype.error = function(str) {
     throw new Error(str);
+  };
+
+  yo.prototype.every = function(arr) {
+    return yo.reduce(arr, function(bool, item) {
+      if(!item) {
+        bool = false;
+      }
+      return bool;
+    }, true);
+  };
+
+  yo.prototype.some = function(arr) {
+    return yo.reduce(arr, function(bool, item) {
+      if(item) {
+        bool = true;
+      }
+      return bool;
+    }, false);
   };
 
   yo.prototype.random = function(min, max) {
@@ -223,6 +251,10 @@
         return i;
       })
       .value();
+  };
+
+  yo.prototype.smallFizzbuzz = function() {
+    var i=0;for(;100>i++;)console.log((i%3?'':'Fizz')+(i%5?'':'Buzz')||i);
   };
 
   yo.prototype.reduce = function(arr, callback, initialValue) {
@@ -458,10 +490,30 @@
     }, []);
   };
 
+  yo.prototype.reject = function(arr, callback) {
+    if(yo.isUndefined(arr)) {
+      yo.error('No array provided');
+    }
+    if(yo.isFunction(arr.filter)) {
+      return arr.filter(callback);
+    }
+
+    return yo.reduce(arr, function(value, item) {
+      if(!callback(item)) {
+        value.push(item);
+      }
+      return value;
+    }, []);
+  };
+
   yo.prototype.chain = function(data) {
     return {
       filter: function(callback) {
         data = yo.filter(data, callback);
+        return this;
+      },
+      reject: function(callback) {
+        data = yo.reject(data, callback);
         return this;
       },
       map: function(callback) {
@@ -524,6 +576,10 @@
         actions.push({action: 'filter', callback: callback});
         return this;
       },
+      reject: function(callback) {
+        actions.push({action: 'reject', callback: callback});
+        return this;
+      },
       map: function(callback) {
         actions.push({action: 'map', callback: callback});
         return this;
@@ -577,7 +633,7 @@
       var allTheMeows = yo.map(yo.times(yo.random(1, yo.random(2, 4))), meow).join(' ')
       console.log('%c' + allTheMeows, 'color: ' + color);
     });
-  }
+  };
 
   yo.prototype.exportModule = function(name, func) {
     if(typeof module !== 'undefined' && module.exports) {
