@@ -1,6 +1,8 @@
 (function() {
   'use strict';
 
+  var nativeSlice = Array.prototype.slice;
+
   var yo = function() {};
 
   yo.prototype.isUndefined = function(val) {
@@ -163,7 +165,17 @@
       arr.push(i);
     }
     return arr;
-  }
+  };
+
+  yo.prototype.curry = function() {
+    var args = nativeSlice.call(arguments, 0);
+    var fn = yo.first(arguments);
+
+    return function() {
+      var newArgs = nativeSlice.call(arguments);
+      return yo.curry.apply(null, args.concat(newArgs));
+    };
+  };
 
   yo.prototype.map = function(arr, callback) {
     if(!yo.isArray(arr)) {
@@ -440,7 +452,7 @@
       end = yo.size(arr);
     }
 
-    return arr.slice(start, end);
+    return nativeSlice.call(arr, start, end);
   };
 
   yo.prototype.drop = function(arr, n) {
