@@ -374,7 +374,7 @@
     return search(0, yo.size(arr) - 1);
   };
 
-  yo.prototype.size = function(val) {
+  yo.prototype.size = yo.prototype.length = function(val) {
     if(yo.isString(val) || yo.isArray(val)) {
       return val.length;
     }
@@ -414,7 +414,15 @@
   };
 
   yo.prototype.rest = function(arr) {
-    return arr.slice(1, arr.length);
+    return yo.slice(arr, 1);
+  };
+
+  yo.prototype.slice = function(arr, start, end) {
+    if(yo.isUndefined(end)) {
+      end = yo.size(arr);
+    }
+
+    return arr.slice(start, end);
   };
 
   yo.prototype.drop = function(arr, n) {
@@ -426,6 +434,28 @@
       return [];
     }
     return arr.slice(0, arr.length - n);
+  };
+
+  yo.prototype.nth = function(arr, n) {
+    return arr[n];
+  };
+
+  yo.prototype.nthArg = function(n) {
+    return function() {
+      return yo.nth(arguments, n);
+    }
+  };
+
+  yo.prototype.min = function() {
+    return Math.min.apply(null, yo.flatten(arguments));
+  };
+
+  yo.prototype.max = function() {
+    return Math.max.apply(null, yo.flatten(arguments));
+  };
+
+  yo.prototype.indexOf = function(arr, value, fromIndex) {
+    return (fromIndex ? yo.slice(arr, fromIndex) : arr).indexOf(value);
   };
 
   yo.prototype.gt = function(a, b) {
