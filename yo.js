@@ -28,7 +28,25 @@
   };
 
   yo.prototype.isEqual = function(a, b) {
-    return a === b;
+    if(a === b) {
+      return true;
+    }
+
+    if(yo.isArray(a) && yo.isArray(b)) {
+      if(a.length !== b.length) {
+        return false;
+      }
+
+      return yo.every(yo.map(a, function(value, i) {
+        return value === b[i];
+      }));
+    }
+
+    return false;
+  };
+
+  yo.prototype.isEmpty = function(val) {
+    return val.length === 0;
   };
 
   yo.prototype.isFinite = function(n) {
@@ -158,7 +176,7 @@
 
     var result = [];
     yo.each(arr, function(data) {
-      result.push(callback(data));
+      result.push(callback(data, i, arr));
     });
 
     return result;
@@ -170,7 +188,7 @@
     }
 
     for(var i = 0; i < arr.length; ++i) {
-      callback(arr[i]);
+      callback(arr[i], i, arr);
     }
   };
 
