@@ -354,6 +354,12 @@
     yo.error('yo.size only accepts: arrays, strings, objects');
   };
 
+
+  yo.prototype.wordCount = function(str) {
+    var words = yo.isFunction(str) ? str() : str;
+    return yo.size(words.split(' '));
+  };
+
   yo.prototype.validateMethodNames = function(func) {
     var invalidMethodNames = yo.reduce(yo.listMethods(func), function(value, method) {
       var match = yo.findKey(yo.arrayToObject(yo.reservedWords()), method);
@@ -466,8 +472,8 @@
         data = yo.reduce(data, callback, initialValue);
         return this;
       },
-      find: function(callback) {
-        data = yo.find(data, callback);
+      find: function(callback, useBinarySearch) {
+        data = yo.find(data, callback, useBinarySearch);
         return this;
       },
       findKey: function(callback) {
@@ -478,8 +484,8 @@
         data = yo.pick(data, callback);
         return this;
       },
-      flatten: function(callback) {
-        data = yo.flatten(data, callback);
+      flatten: function() {
+        data = yo.flatten(data);
         return this;
       },
       first: function() {
@@ -500,6 +506,66 @@
       },
       value: function() {
         return data;
+      }
+    };
+  };
+
+  yo.prototype.lazyChain = function(data) {
+    var actions = [];
+    var buildData = function() {
+      yo.each(actions, function(action) {
+        data = yo[action.action](data, action.callback, data.attributes);
+      });
+      return data;
+    };
+
+    return {
+      filter: function(callback) {
+        actions.push({action: 'filter', callback: callback});
+        return this;
+      },
+      map: function(callback) {
+        actions.push({action: 'map', callback: callback});
+        return this;
+      },
+      reduce: function(callback, initialValue) {
+        actions.push({action: 'reduce', callback: callback});
+        return this;
+      },
+      find: function(callback, useBinarySearch) {
+        actions.push({action: 'find', callback: callback, attributes: useBinarySearch});
+        return this;
+      },
+      findKey: function(callback) {
+        actions.push({action: 'findKey', callback: callback});
+        return this;
+      },
+      pick: function(callback) {
+        actions.push({action: 'pick', callback: callback});
+        return this;
+      },
+      flatten: function() {
+        actions.push({action: 'flatten'});
+        return this;
+      },
+      first: function() {
+        actions.push({action: 'first'});
+        return this;
+      },
+      rest: function() {
+        actions.push({action: 'rest'});
+        return this;
+      },
+      drop: function(n) {
+        actions.push({action: 'drop', callback: n});
+        return this;
+      },
+      dropRight: function(n) {
+        actions.push({action: 'dropRight', callback: n});
+        return this;
+      },
+      value: function() {
+        return buildData();
       }
     };
   };
