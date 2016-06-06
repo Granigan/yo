@@ -168,12 +168,12 @@
   };
 
   yo.prototype.curry = function() {
-    var args = nativeSlice.call(arguments, 0);
+    var args = nativeSlice.call(arguments, 1);
     var fn = yo.first(arguments);
 
     return function() {
       var newArgs = nativeSlice.call(arguments);
-      return yo.curry.apply(null, args.concat(newArgs));
+      return fn.apply(this, args.concat(newArgs));
     };
   };
 
