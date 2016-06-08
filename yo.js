@@ -44,6 +44,19 @@
       }));
     }
 
+    if(yo.isObject(a) && yo.isObject(b)) {
+      if(yo.size(a) !== yo.size(b)) {
+        return false;
+      }
+
+      var a_keys = yo.keys(a);
+      var b_keys = yo.keys(b);
+
+      return yo.every(yo.map(a_keys, function(value, i) {
+        return value === b_keys[i] && yo.isEqual(a[value], b[value]);
+      }));
+    }
+
     return false;
   };
 
