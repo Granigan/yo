@@ -257,7 +257,7 @@
 
     var word = yo.lowercase(str).replace(/[\W_]/g, '');
 
-    return word === word.split('').reverse().join('');
+    return word === yo.reverse(word);
   };
 
   yo.prototype.fibonacci = function(n) {
@@ -448,8 +448,12 @@
     return yo.size(invalidMethodNames) ? invalidMethodNames : true;
   };
 
-  yo.prototype.reverse = function(arr) {
-    return arr.reverse();
+  yo.prototype.reverse = function(val) {
+    if(yo.isString(val)) {
+      return yo.reverse(val.split('')).join('');
+    }
+
+    return val.reverse();
   };
 
   yo.prototype.first = function(arr) {
