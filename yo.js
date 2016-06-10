@@ -448,6 +448,10 @@
     return yo.size(invalidMethodNames) ? invalidMethodNames : true;
   };
 
+  yo.prototype.reverse = function(arr) {
+    return arr.reverse();
+  };
+
   yo.prototype.first = function(arr) {
     return arr[0];
   };
@@ -579,6 +583,16 @@
     }, []);
   };
 
+  yo.prototype.lastOfTheLastOfTheLast = function(arr) {
+    var lastItem = yo.first(yo.reverse(arr));
+
+    if(yo.isArray(lastItem) && yo.size(lastItem)) {
+      return yo.lastOfTheLastOfTheLast(lastItem);
+    }
+
+    return lastItem;
+  };
+
   yo.prototype.chain = function(data) {
     return {
       filter: function(callback) {
@@ -615,6 +629,10 @@
       },
       first: function() {
         data = yo.first(data);
+        return this;
+      },
+      reverse: function() {
+        data = yo.reverse(data);
         return this;
       },
       rest: function() {
@@ -679,6 +697,10 @@
       },
       first: function() {
         actions.push({action: 'first'});
+        return this;
+      },
+      reverse: function() {
+        actions.push({action: 'reverse'});
         return this;
       },
       rest: function() {
