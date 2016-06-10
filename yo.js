@@ -484,7 +484,7 @@
     if(n > arr.length - 1) {
       return [];
     }
-    return arr.slice(0, arr.length - n);
+    return yo.slize(arr, 0, arr.length - n);
   };
 
   yo.prototype.nth = function(arr, n) {
