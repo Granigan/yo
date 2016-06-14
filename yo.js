@@ -317,7 +317,9 @@
   };
 
   yo.prototype.listMethods = function(func) {
-    return yo.keys(func || yo);
+    return yo.filter(yo.keys(func || yo), function(method) {
+      return !yo.isFunction(method);
+    });
   };
 
   yo.prototype.reservedWords = function() {
