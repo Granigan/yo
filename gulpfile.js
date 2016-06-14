@@ -1,19 +1,28 @@
-var gulp = require('gulp');
-var plumber = require('gulp-plumber');
-var notify = require('gulp-notify');
-var eslint = require('gulp-eslint');
+const gulp = require('gulp');
+const plumber = require('gulp-plumber');
+const notify = require('gulp-notify');
+const eslint = require('gulp-eslint');
+const babel = require('gulp-babel');
 
-var files = '*.js';
+const files = ['src/*.js', '*.js'];
 
-gulp.task('lint', function() {
-  return gulp.src(files)
+gulp.task('lint', () =>
+  gulp.src(files)
     .pipe(plumber())
     .pipe(eslint())
     .pipe(eslint.format())
     .pipe(eslint.failAfterError())
-    .on('error', notify.onError('Error: <%= error.message %>'));
-});
+    .on('error', notify.onError('Error: <%= error.message %>'))
+);
 
-gulp.task('default', ['lint'], function() {
-  return gulp.watch(files, ['lint']);
-});
+gulp.task('babel', () =>
+  gulp.src('src/*.js')
+    .pipe(babel({
+      presets: ['es2015']
+    }))
+    .pipe(gulp.dest('dist'))
+);
+
+gulp.task('default', ['lint', 'babel'], () =>
+  gulp.watch(files, ['lint', 'babel'])
+);
