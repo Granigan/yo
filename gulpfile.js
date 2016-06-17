@@ -17,10 +17,12 @@ gulp.task('lint', () =>
 
 gulp.task('babel', () =>
   gulp.src('src/*.js')
+    .pipe(plumber())
     .pipe(babel({
       presets: ['es2015']
     }))
     .pipe(gulp.dest('dist'))
+    .on('error', notify.onError('Error: <%= error.message %>'))
 );
 
 gulp.task('default', ['lint', 'babel'], () =>
