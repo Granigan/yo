@@ -1,31 +1,32 @@
 (() => {
   const nativeSlice = Array.prototype.slice;
 
-  const noLocalStorage = () => {
-    if (this.isUndefined(window) || this.isUndefined(window.localStorage)) {
-      this.error('No localStorage support');
-    }
-  };
-
   class Yo {
     constructor() {
-      this.localstorage = {
-        get: (key) => {
-          noLocalStorage();
-          return JSON.parse(window.localStorage.getItem(key));
-        },
-        set: (key, value) => {
-          noLocalStorage();
+      const privatePipe = (funcs, args) => {
+        let result = this.first(funcs)(...args);
 
-          window.localStorage.setItem(key, JSON.stringify(value));
-        },
-        remove: (key) => {
-          noLocalStorage();
-          window.localStorage.removeItem(key);
-        }
+        this.each(this.rest(funcs), (func) => {
+          result = func(result);
+        });
+
+        return result;
       };
+
+      this.capitalize = (str) =>
+        this.uppercase(this.first(str)) + this.lowercase(this.rest(str));
+
+      this.pipe = (...funcs) =>
+        (...args) => privatePipe(funcs, args);
+
+      this.pipeRight = (...funcs) =>
+        (...args) => privatePipe(this.reverse(funcs), args);
     }
+
     noop() {}
+    passthru(...args) {
+      return args;
+    }
     isUndefined(val) {
       return val === void 0;
     }
@@ -33,6 +34,7 @@
       return typeof val === 'string';
     }
     isObject(val) {
+      // returns true on array
       return typeof val === 'object';
     }
     isFunction(val) {
@@ -49,12 +51,6 @@
     }
     isNegative(n) {
       return this.isFinite(n) && n < 0;
-    }
-    flatten(arr) {
-      return this.reduce(arr, (a, b) => a.concat(b), []);
-    }
-    error(str) {
-      throw new Error(str);
     }
     isNumber(val) {
       return typeof val === 'number' && val.constructor === Number;
@@ -90,6 +86,13 @@
       }
 
       return false;
+    }
+
+    flatten(arr) {
+      return this.reduce(arr, (a, b) => a.concat(b), []);
+    }
+    error(str) {
+      throw new Error(str);
     }
 
     every(arr) {
@@ -161,6 +164,7 @@
 
       return element;
     }
+
     keys(obj) {
       if (obj === this) {
         const keys = Object.getOwnPropertyNames(Object.getPrototypeOf(obj));
@@ -181,17 +185,18 @@
       }
       return arr;
     }
+
     times(n) {
       return this.range(n);
     }
 
-    curry(...wut) {
-      const args = nativeSlice.call(wut, 1);
-      const fn = this.first(wut);
+    curry(...args) {
+      const slicedArgs = nativeSlice.call(args, 1);
+      const fn = this.first(slicedArgs);
 
-      return (...mm) => {
-        const newArgs = nativeSlice.call(mm);
-        return fn.apply(this, args.concat(newArgs));
+      return (...newSetOfArgs) => {
+        const newArgs = nativeSlice.call(newSetOfArgs);
+        return fn.apply(this, slicedArgs.concat(newArgs));
       };
     }
 
@@ -224,16 +229,14 @@
       return arr;
     }
 
-    extend(obj, val) {
+    extend(...args) {
       const newObj = {};
 
-      for (const prop in obj) {
-        newObj[prop] = obj[prop];
-      }
-
-      for (const prop in val) {
-        newObj[prop] = val[prop];
-      }
+      this.each(args, (arg) => {
+        for (const prop in arg) {
+          newObj[prop] = arg[prop];
+        }
+      });
 
       return newObj;
     }
@@ -470,8 +473,13 @@
       return arr[arr.length - 1];
     }
 
-    rest(arr) {
-      return this.slice(arr, 1);
+    rest(arg) {
+      const value = this.slice(arg, 1);
+      if (this.isString(arg)) {
+        return value.join('');
+      }
+
+      return value;
     }
 
     slice(arr, start, end) {
@@ -537,7 +545,6 @@
     indexOf(arr, value, fromIndex) {
       (fromIndex ? this.slice(arr, fromIndex) : arr).indexOf(value);
     }
-
 
     filter(arr, callback) {
       if (this.isUndefined(arr)) {
@@ -645,8 +652,8 @@
       const that = this;
       const actions = [];
       const buildData = () => {
-        that.each(actions, (action) => {
-          result = that[action.action](result, action.callback, result.attributes);
+        that.each(actions, ({action, callback}) => {
+          result = that[action](result, callback, result.attributes);
         });
         return result;
       };
@@ -716,9 +723,7 @@
         const color = this.random() ? greenOrRed : orangeOrBlue;
         const meow = () => meowOrPurr;
         const allTheMeows = this.map(this.times(this.random(1, this.random(2, 4))), meow).join(' ');
-        /* eslint-disable */
-        console.log('%c' + allTheMeows, 'color: ' + color);
-        /* eslint-enable */
+        console.log(`%c${allTheMeows}`, `color: ${color}`);
       });
     }
 
