@@ -3,16 +3,11 @@
 
   class Yo {
     constructor() {
-      const privatePipe = (funcs, args) => {
-        let result = this.first(funcs)(...args);
+      const privatePipe = (funcs, args) =>
+        this.reduce(this.rest(funcs), this.callFunctor, this.first(funcs)(...args));
 
-        this.each(this.rest(funcs), (func) => {
-          result = func(result);
-        });
-
-        return result;
-      };
-
+      this.uppercase = (str) => str.toUpperCase();
+      this.lowercase = (str) => str.toLowerCase();
       this.capitalize = (str) =>
         this.uppercase(this.first(str)) + this.lowercase(this.rest(str));
 
@@ -21,6 +16,19 @@
 
       this.pipeRight = (...funcs) =>
         (...args) => privatePipe(this.reverse(funcs), args);
+
+      this.arrayToObject = (arr, value = true) =>
+        this.reduce(arr, (obj, key) =>
+          this.extend({}, obj, {[key]: value})
+        , {});
+
+      this.callFunctor = (val, fn) => fn(val);
+
+      this.negate = (fn) => (...args) => !fn(...args);
+
+      this.flip = (fn) => (...args) => fn(this.reverse(args));
+
+      this.toArray = (...args) => this.flatten(args);
     }
 
     noop() {}
@@ -41,7 +49,7 @@
       return typeof val === 'function';
     }
     isEmpty(val) {
-      return this.size(val) === 0;
+      return this.isUndefined(val) || val === 0 || this.size(val) === 0;
     }
     isFinite(n) {
       return this.isNumber(n) && Number.isFinite(n);
@@ -89,8 +97,13 @@
     }
 
     flatten(arr) {
-      return this.reduce(arr, (a, b) => a.concat(b), []);
+      if (this.isEmpty(arr)) {
+        return [];
+      }
+
+      return this.reduce(arr, (a, b) => a.concat(this.isArray(b) ? this.flatten(b) : b), []);
     }
+
     error(str) {
       throw new Error(str);
     }
@@ -202,7 +215,7 @@
 
     map(arr, callback) {
       if (!this.isArray(arr)) {
-        this.error('No array given');
+        return [arr];
       }
 
       if (this.isFunction(arr.map)) {
@@ -389,14 +402,6 @@
       }, []);
     }
 
-    arrayToObject(arr, value = true) {
-      return this.reduce(arr, (obj, key) => {
-        const newObj = {};
-        newObj[key] = value;
-        return newObj;
-      }, {});
-    }
-
     binarySearch(arr, value) {
       const search = (start, end) => {
         if (start > end) {
@@ -534,22 +539,15 @@
       return a <= b;
     }
 
-    uppercase(str) {
-      return str.toUpperCase();
-    }
-
-    lowercase(str) {
-      return str.toLowerCase();
-    }
-
     indexOf(arr, value, fromIndex) {
       (fromIndex ? this.slice(arr, fromIndex) : arr).indexOf(value);
     }
 
     filter(arr, callback) {
       if (this.isUndefined(arr)) {
-        this.error('No array provided');
+        return [];
       }
+
       if (this.isFunction(arr.filter)) {
         return arr.filter(callback);
       }
@@ -564,8 +562,9 @@
 
     reject(arr, callback) {
       if (this.isUndefined(arr)) {
-        this.error('No array provided');
+        return [];
       }
+
       if (this.isFunction(arr.filter)) {
         return arr.filter(callback);
       }
@@ -649,11 +648,10 @@
 
     lazyChain(data) {
       let result = data;
-      const that = this;
       const actions = [];
       const buildData = () => {
-        that.each(actions, ({action, callback}) => {
-          result = that[action](result, callback, result.attributes);
+        this.each(actions, ({action, callback}) => {
+          result = this[action](result, callback, result.attributes);
         });
         return result;
       };

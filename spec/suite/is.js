@@ -12,7 +12,11 @@ describe('Is functions', () => {
   it('isObject', () => expect(yo.isObject({obj: true})).to.equal(true));
   it('isFunction', () => expect(yo.isFunction(() => {})).to.equal(true));
   it('isArray', () => expect(yo.isArray([])).to.equal(true));
-  it('isEmpty', () => expect(yo.isEmpty([])).to.equal(true));
+  it('isEmpty array', () => expect(yo.isEmpty([])).to.equal(true));
+  it('isEmpty object', () => expect(yo.isEmpty({})).to.equal(true));
+  it('isEmpty string', () => expect(yo.isEmpty('')).to.equal(true));
+  it('isEmpty number', () => expect(yo.isEmpty(0)).to.equal(true));
+  it('isEmpty undefined', () => expect(yo.isEmpty()).to.equal(true));
   it('isFinite', () => expect(yo.isFinite(1)).to.equal(true));
   it('isPositive', () => expect(yo.isPositive(1)).to.equal(true));
   it('isNegative', () => expect(yo.isNegative(-1)).to.equal(true));

@@ -2,10 +2,17 @@ const yo = require('../../dist/yo.js');
 const expect = require('expect.js');
 
 describe('Pipe', () => {
+  it('Should pipe a calculation with one argument and one function', () => {
+    const add5 = (value) => value + 5;
+    const result = yo.pipe(add5)(5);
+
+    expect(result).to.equal(10);
+  });
+
   it('Should pipe a calculation with one argument', () => {
     const add5 = (value) => value + 5;
     const multiplyBy10 = (value) => value * 10;
-    const result = yo.pipe(add5, multiplyBy10)(5, 2);
+    const result = yo.pipe(add5, multiplyBy10)(5);
 
     expect(result).to.equal(100);
   });
@@ -30,6 +37,7 @@ describe('Pipe', () => {
     expect(yo.first(result)).to.equal('hello world');
     expect(result).to.eql(['hello world']);
   });
+
   it('Should pipeRight a string to map', () => {
     const addWorld = (value) => `${yo.first(value)} world`;
     const createArray = (value) => [value];

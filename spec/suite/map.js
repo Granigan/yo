@@ -7,4 +7,11 @@ describe('Map', () => {
 
     expect(value).to.eql([10, 20, 30]);
   });
+
+  it('Should return array when given string', () => {
+    const value = yo.map('hello');
+
+    expect(value).to.be.an('array');
+    expect(value).to.eql(['hello']);
+  });
 });
