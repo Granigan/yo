@@ -29,11 +29,32 @@
       this.toArray = (...args) => this.flatten(args);
       this.noop = () => {};
       this.passthru = (args) => args;
-      this.sum = (...args) => this.reduce(args, (initial, n) => initial + n, 0);
-      this.add = (a, b) => a + b;
-      this.minus = (a, b) => a - b; // TODO: rename
-      this.multiply = (a, b) => a * b;
-      this.divide = (a, b) => a / b;
+
+      const sum = (...args) => this.reduce(args, (initial, n) => initial + n, 0);
+      const add = (a, b) => a + b;
+      const subtract = (a, b) => a - b;
+      const multiply = (a, b) => a * b;
+      const divide = (a, b) => a / b;
+      const mean = (...args) => divide(this.reduce(args, add, 0), args.length);
+
+      this.mixin({
+        sum,
+        add,
+        subtract,
+        multiply,
+        divide,
+        mean
+      });
+    }
+
+    mixin(obj, overwrite = false) {
+      for (const key in obj) {
+        if (overwrite && this[key]) {
+          continue;
+        }
+
+        this[key] = obj[key];
+      }
     }
 
     isUndefined(val) {

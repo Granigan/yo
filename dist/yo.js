@@ -97,7 +97,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
       this.passthru = function (args) {
         return args;
       };
-      this.sum = function () {
+
+      var sum = function sum() {
         for (var _len7 = arguments.length, args = Array(_len7), _key7 = 0; _key7 < _len7; _key7++) {
           args[_key7] = arguments[_key7];
         }
@@ -106,21 +107,50 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
           return initial + n;
         }, 0);
       };
-      this.add = function (a, b) {
+      var add = function add(a, b) {
         return a + b;
       };
-      this.minus = function (a, b) {
+      var subtract = function subtract(a, b) {
         return a - b;
-      }; // TODO: rename
-      this.multiply = function (a, b) {
+      };
+      var multiply = function multiply(a, b) {
         return a * b;
       };
-      this.divide = function (a, b) {
+      var divide = function divide(a, b) {
         return a / b;
       };
+      var mean = function mean() {
+        for (var _len8 = arguments.length, args = Array(_len8), _key8 = 0; _key8 < _len8; _key8++) {
+          args[_key8] = arguments[_key8];
+        }
+
+        return divide(_this.reduce(args, add, 0), args.length);
+      };
+
+      this.mixin({
+        sum: sum,
+        add: add,
+        subtract: subtract,
+        multiply: multiply,
+        divide: divide,
+        mean: mean
+      });
     }
 
     _createClass(Yo, [{
+      key: 'mixin',
+      value: function mixin(obj) {
+        var overwrite = arguments.length <= 1 || arguments[1] === undefined ? false : arguments[1];
+
+        for (var key in obj) {
+          if (overwrite && this[key]) {
+            continue;
+          }
+
+          this[key] = obj[key];
+        }
+      }
+    }, {
       key: 'isUndefined',
       value: function isUndefined(val) {
         return val === void 0;
@@ -358,16 +388,16 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
       value: function curry() {
         var _this6 = this;
 
-        for (var _len8 = arguments.length, args = Array(_len8), _key8 = 0; _key8 < _len8; _key8++) {
-          args[_key8] = arguments[_key8];
+        for (var _len9 = arguments.length, args = Array(_len9), _key9 = 0; _key9 < _len9; _key9++) {
+          args[_key9] = arguments[_key9];
         }
 
         var slicedArgs = nativeSlice.call(args, 1);
         var fn = this.first(slicedArgs);
 
         return function () {
-          for (var _len9 = arguments.length, newSetOfArgs = Array(_len9), _key9 = 0; _key9 < _len9; _key9++) {
-            newSetOfArgs[_key9] = arguments[_key9];
+          for (var _len10 = arguments.length, newSetOfArgs = Array(_len10), _key10 = 0; _key10 < _len10; _key10++) {
+            newSetOfArgs[_key10] = arguments[_key10];
           }
 
           var newArgs = nativeSlice.call(newSetOfArgs);
@@ -408,8 +438,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
     }, {
       key: 'extend',
       value: function extend() {
-        for (var _len10 = arguments.length, args = Array(_len10), _key10 = 0; _key10 < _len10; _key10++) {
-          args[_key10] = arguments[_key10];
+        for (var _len11 = arguments.length, args = Array(_len11), _key11 = 0; _key11 < _len11; _key11++) {
+          args[_key11] = arguments[_key11];
         }
 
         /* eslint-disable no-param-reassign */
@@ -715,8 +745,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         var _this11 = this;
 
         return function () {
-          for (var _len11 = arguments.length, args = Array(_len11), _key11 = 0; _key11 < _len11; _key11++) {
-            args[_key11] = arguments[_key11];
+          for (var _len12 = arguments.length, args = Array(_len12), _key12 = 0; _key12 < _len12; _key12++) {
+            args[_key12] = arguments[_key12];
           }
 
           return _this11.nth(args, n);
@@ -725,8 +755,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
     }, {
       key: 'min',
       value: function min() {
-        for (var _len12 = arguments.length, args = Array(_len12), _key12 = 0; _key12 < _len12; _key12++) {
-          args[_key12] = arguments[_key12];
+        for (var _len13 = arguments.length, args = Array(_len13), _key13 = 0; _key13 < _len13; _key13++) {
+          args[_key13] = arguments[_key13];
         }
 
         return Math.min.apply(null, this.flatten(args));
@@ -734,8 +764,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
     }, {
       key: 'max',
       value: function max() {
-        for (var _len13 = arguments.length, args = Array(_len13), _key13 = 0; _key13 < _len13; _key13++) {
-          args[_key13] = arguments[_key13];
+        for (var _len14 = arguments.length, args = Array(_len14), _key14 = 0; _key14 < _len14; _key14++) {
+          args[_key14] = arguments[_key14];
         }
 
         return Math.max.apply(null, this.flatten(args));
