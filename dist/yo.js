@@ -98,15 +98,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         return args;
       };
 
-      var sum = function sum() {
-        for (var _len7 = arguments.length, args = Array(_len7), _key7 = 0; _key7 < _len7; _key7++) {
-          args[_key7] = arguments[_key7];
-        }
-
-        return _this.reduce(args, function (initial, n) {
-          return initial + n;
-        }, 0);
-      };
       var add = function add(a, b) {
         return a + b;
       };
@@ -119,12 +110,15 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
       var divide = function divide(a, b) {
         return a / b;
       };
-      var mean = function mean() {
-        for (var _len8 = arguments.length, args = Array(_len8), _key8 = 0; _key8 < _len8; _key8++) {
-          args[_key8] = arguments[_key8];
+      var sum = function sum() {
+        for (var _len7 = arguments.length, args = Array(_len7), _key7 = 0; _key7 < _len7; _key7++) {
+          args[_key7] = arguments[_key7];
         }
 
-        return divide(_this.reduce(args, add, 0), args.length);
+        return _this.reduce(args, add, 0);
+      };
+      var mean = function mean() {
+        return divide(sum.apply(undefined, arguments), arguments.length);
       };
 
       this.mixin({
@@ -198,7 +192,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
     }, {
       key: 'isArray',
       value: function isArray(val) {
-        return val && val.constructor === Array;
+        return val && (Array.isArray ? Array.isArray(val) : val.constructor === Array);
       }
     }, {
       key: 'isEqual',
@@ -388,16 +382,16 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
       value: function curry() {
         var _this6 = this;
 
-        for (var _len9 = arguments.length, args = Array(_len9), _key9 = 0; _key9 < _len9; _key9++) {
-          args[_key9] = arguments[_key9];
+        for (var _len8 = arguments.length, args = Array(_len8), _key8 = 0; _key8 < _len8; _key8++) {
+          args[_key8] = arguments[_key8];
         }
 
         var slicedArgs = nativeSlice.call(args, 1);
         var fn = this.first(slicedArgs);
 
         return function () {
-          for (var _len10 = arguments.length, newSetOfArgs = Array(_len10), _key10 = 0; _key10 < _len10; _key10++) {
-            newSetOfArgs[_key10] = arguments[_key10];
+          for (var _len9 = arguments.length, newSetOfArgs = Array(_len9), _key9 = 0; _key9 < _len9; _key9++) {
+            newSetOfArgs[_key9] = arguments[_key9];
           }
 
           var newArgs = nativeSlice.call(newSetOfArgs);
@@ -438,8 +432,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
     }, {
       key: 'extend',
       value: function extend() {
-        for (var _len11 = arguments.length, args = Array(_len11), _key11 = 0; _key11 < _len11; _key11++) {
-          args[_key11] = arguments[_key11];
+        for (var _len10 = arguments.length, args = Array(_len10), _key10 = 0; _key10 < _len10; _key10++) {
+          args[_key10] = arguments[_key10];
         }
 
         /* eslint-disable no-param-reassign */
@@ -745,8 +739,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         var _this11 = this;
 
         return function () {
-          for (var _len12 = arguments.length, args = Array(_len12), _key12 = 0; _key12 < _len12; _key12++) {
-            args[_key12] = arguments[_key12];
+          for (var _len11 = arguments.length, args = Array(_len11), _key11 = 0; _key11 < _len11; _key11++) {
+            args[_key11] = arguments[_key11];
           }
 
           return _this11.nth(args, n);
@@ -755,8 +749,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
     }, {
       key: 'min',
       value: function min() {
-        for (var _len13 = arguments.length, args = Array(_len13), _key13 = 0; _key13 < _len13; _key13++) {
-          args[_key13] = arguments[_key13];
+        for (var _len12 = arguments.length, args = Array(_len12), _key12 = 0; _key12 < _len12; _key12++) {
+          args[_key12] = arguments[_key12];
         }
 
         return Math.min.apply(null, this.flatten(args));
@@ -764,8 +758,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
     }, {
       key: 'max',
       value: function max() {
-        for (var _len14 = arguments.length, args = Array(_len14), _key14 = 0; _key14 < _len14; _key14++) {
-          args[_key14] = arguments[_key14];
+        for (var _len13 = arguments.length, args = Array(_len13), _key13 = 0; _key13 < _len13; _key13++) {
+          args[_key13] = arguments[_key13];
         }
 
         return Math.max.apply(null, this.flatten(args));

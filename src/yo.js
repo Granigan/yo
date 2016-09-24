@@ -30,12 +30,12 @@
       this.noop = () => {};
       this.passthru = (args) => args;
 
-      const sum = (...args) => this.reduce(args, (initial, n) => initial + n, 0);
       const add = (a, b) => a + b;
       const subtract = (a, b) => a - b;
       const multiply = (a, b) => a * b;
       const divide = (a, b) => a / b;
-      const mean = (...args) => divide(this.reduce(args, add, 0), args.length);
+      const sum = (...args) => this.reduce(args, add, 0);
+      const mean = (...args) => divide(sum(...args), args.length);
 
       this.mixin({
         sum,
@@ -85,7 +85,7 @@
       return typeof val === 'number' && val.constructor === Number;
     }
     isArray(val) {
-      return val && val.constructor === Array;
+      return val && (Array.isArray ? Array.isArray(val) : val.constructor === Array);
     }
 
     isEqual(a, b) {
