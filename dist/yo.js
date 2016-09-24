@@ -77,7 +77,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
           return !fn.apply(undefined, arguments);
         };
       };
-
       this.flip = function (fn) {
         return function () {
           for (var _len5 = arguments.length, args = Array(_len5), _key5 = 0; _key5 < _len5; _key5++) {
@@ -87,7 +86,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
           return fn(_this.reverse(args));
         };
       };
-
       this.toArray = function () {
         for (var _len6 = arguments.length, args = Array(_len6), _key6 = 0; _key6 < _len6; _key6++) {
           args[_key6] = arguments[_key6];
@@ -95,21 +93,34 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
         return _this.flatten(args);
       };
-    }
-
-    _createClass(Yo, [{
-      key: 'noop',
-      value: function noop() {}
-    }, {
-      key: 'passthru',
-      value: function passthru() {
+      this.noop = function () {};
+      this.passthru = function (args) {
+        return args;
+      };
+      this.sum = function () {
         for (var _len7 = arguments.length, args = Array(_len7), _key7 = 0; _key7 < _len7; _key7++) {
           args[_key7] = arguments[_key7];
         }
 
-        return args;
-      }
-    }, {
+        return _this.reduce(args, function (initial, n) {
+          return initial + n;
+        }, 0);
+      };
+      this.add = function (a, b) {
+        return a + b;
+      };
+      this.minus = function (a, b) {
+        return a - b;
+      }; // TODO: rename
+      this.multiply = function (a, b) {
+        return a * b;
+      };
+      this.divide = function (a, b) {
+        return a / b;
+      };
+    }
+
+    _createClass(Yo, [{
       key: 'isUndefined',
       value: function isUndefined(val) {
         return val === void 0;
@@ -122,8 +133,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
     }, {
       key: 'isObject',
       value: function isObject(val) {
-        // returns true on array
-        return (typeof val === 'undefined' ? 'undefined' : _typeof(val)) === 'object';
+        return (typeof val === 'undefined' ? 'undefined' : _typeof(val)) === 'object' && val.constructor !== Array;
       }
     }, {
       key: 'isFunction',
@@ -158,7 +168,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
     }, {
       key: 'isArray',
       value: function isArray(val) {
-        return val && this.isObject(val) && val.constructor === Array;
+        return val && val.constructor === Array;
       }
     }, {
       key: 'isEqual',
@@ -223,8 +233,16 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
     }, {
       key: 'every',
       value: function every(arr) {
+        var _this4 = this;
+
         return this.reduce(arr, function (bool, item) {
           var result = bool;
+
+          // Not sure if support for functions should be implemented
+          if (_this4.isFunction(item)) {
+            result = item();
+          }
+
           if (!item) {
             result = false;
           }
@@ -234,8 +252,16 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
     }, {
       key: 'some',
       value: function some(arr) {
+        var _this5 = this;
+
         return this.reduce(arr, function (bool, item) {
           var result = bool;
+
+          // Not sure if support for functions should be implemented
+          if (_this5.isFunction(item)) {
+            result = item();
+          }
+
           if (item) {
             result = true;
           }
@@ -330,7 +356,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
     }, {
       key: 'curry',
       value: function curry() {
-        var _this4 = this;
+        var _this6 = this;
 
         for (var _len8 = arguments.length, args = Array(_len8), _key8 = 0; _key8 < _len8; _key8++) {
           args[_key8] = arguments[_key8];
@@ -345,7 +371,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
           }
 
           var newArgs = nativeSlice.call(newSetOfArgs);
-          return fn.apply(_this4, slicedArgs.concat(newArgs));
+          return fn.apply(_this6, slicedArgs.concat(newArgs));
         };
       }
     }, {
@@ -382,30 +408,30 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
     }, {
       key: 'extend',
       value: function extend() {
-        var newObj = {};
-
         for (var _len10 = arguments.length, args = Array(_len10), _key10 = 0; _key10 < _len10; _key10++) {
           args[_key10] = arguments[_key10];
         }
 
-        this.each(args, function (arg) {
+        /* eslint-disable no-param-reassign */
+        return this.reduce(args, function (initial, arg) {
           for (var prop in arg) {
-            newObj[prop] = arg[prop];
+            initial[prop] = arg[prop];
           }
-        });
 
-        return newObj;
+          return initial;
+        }, {});
+        /* eslint-disable no-param-reassign */
       }
     }, {
       key: 'css',
       value: function css(selector, attr) {
-        var _this5 = this;
+        var _this7 = this;
 
         var elements = this.$(selector);
 
         var setStyle = function setStyle(element) {
           var e = element; // damn eslint
-          _this5.each(_this5.keys(attr), function (prop) {
+          _this7.each(_this7.keys(attr), function (prop) {
             e.style[prop] = attr[prop];
           });
         };
@@ -494,10 +520,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
     }, {
       key: 'listMethods',
       value: function listMethods(func) {
-        var _this6 = this;
+        var _this8 = this;
 
         return this.filter(this.keys(func || this), function (method) {
-          return !_this6.isFunction(method);
+          return !_this8.isFunction(method);
         });
       }
     }, {
@@ -537,11 +563,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
     }, {
       key: 'pick',
       value: function pick(arr, query) {
-        var _this7 = this;
+        var _this9 = this;
 
         return this.reduce(arr, function (value, item) {
           for (var prop in query) {
-            if (item[prop] && _this7.isEqual(item[prop], query[prop])) {
+            if (item[prop] && _this9.isEqual(item[prop], query[prop])) {
               value.push(item);
             }
           }
@@ -603,10 +629,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
     }, {
       key: 'validateMethodNames',
       value: function validateMethodNames(func) {
-        var _this8 = this;
+        var _this10 = this;
 
         var invalidMethodNames = this.reduce(this.listMethods(func), function (value, method) {
-          var match = _this8.findKey(_this8.arrayToObject(_this8.reservedWords()), method);
+          var match = _this10.findKey(_this10.arrayToObject(_this10.reservedWords()), method);
           if (match) {
             value.push(match);
           }
@@ -646,6 +672,16 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         return value;
       }
     }, {
+      key: 'head',
+      value: function head(arr) {
+        return this.first(arr);
+      }
+    }, {
+      key: 'tail',
+      value: function tail(arr) {
+        return this.rest(arr);
+      }
+    }, {
       key: 'slice',
       value: function slice(arr, start, end) {
         var noEndInSight = end;
@@ -676,14 +712,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
     }, {
       key: 'nthArg',
       value: function nthArg(n) {
-        var _this9 = this;
+        var _this11 = this;
 
         return function () {
           for (var _len11 = arguments.length, args = Array(_len11), _key11 = 0; _key11 < _len11; _key11++) {
             args[_key11] = arguments[_key11];
           }
 
-          return _this9.nth(args, n);
+          return _this11.nth(args, n);
         };
       }
     }, {
@@ -727,7 +763,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
     }, {
       key: 'indexOf',
       value: function indexOf(arr, value, fromIndex) {
-        (fromIndex ? this.slice(arr, fromIndex) : arr).indexOf(value);
+        return (fromIndex ? this.slice(arr, fromIndex) : arr).indexOf(value);
       }
     }, {
       key: 'filter',
@@ -779,61 +815,61 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
     }, {
       key: 'chain',
       value: function chain(data) {
-        var _this10 = this;
+        var _this12 = this;
 
         var result = data;
         return {
           filter: function filter(callback) {
-            result = _this10.filter(result, callback);
-            return _this10;
+            result = _this12.filter(result, callback);
+            return _this12;
           },
           reject: function reject(callback) {
-            result = _this10.reject(result, callback);
-            return _this10;
+            result = _this12.reject(result, callback);
+            return _this12;
           },
           map: function map(callback) {
-            result = _this10.map(result, callback);
-            return _this10;
+            result = _this12.map(result, callback);
+            return _this12;
           },
           reduce: function reduce(callback, initialValue) {
-            result = _this10.reduce(result, callback, initialValue);
-            return _this10;
+            result = _this12.reduce(result, callback, initialValue);
+            return _this12;
           },
           find: function find(callback, useBinarySearch) {
-            result = _this10.find(result, callback, useBinarySearch);
-            return _this10;
+            result = _this12.find(result, callback, useBinarySearch);
+            return _this12;
           },
           findKey: function findKey(callback) {
-            result = _this10.findKey(result, callback);
-            return _this10;
+            result = _this12.findKey(result, callback);
+            return _this12;
           },
           pick: function pick(callback) {
-            result = _this10.pick(result, callback);
-            return _this10;
+            result = _this12.pick(result, callback);
+            return _this12;
           },
           flatten: function flatten() {
-            result = _this10.flatten(result);
-            return _this10;
+            result = _this12.flatten(result);
+            return _this12;
           },
           first: function first() {
-            result = _this10.first(result);
-            return _this10;
+            result = _this12.first(result);
+            return _this12;
           },
           reverse: function reverse() {
-            result = _this10.reverse(result);
-            return _this10;
+            result = _this12.reverse(result);
+            return _this12;
           },
           rest: function rest() {
-            result = _this10.rest(result);
-            return _this10;
+            result = _this12.rest(result);
+            return _this12;
           },
           drop: function drop(n) {
-            result = _this10.drop(result, n);
-            return _this10;
+            result = _this12.drop(result, n);
+            return _this12;
           },
           dropRight: function dropRight(n) {
-            result = _this10.dropRight(result, n);
-            return _this10;
+            result = _this12.dropRight(result, n);
+            return _this12;
           },
           value: function value() {
             return result;
@@ -843,16 +879,16 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
     }, {
       key: 'lazyChain',
       value: function lazyChain(data) {
-        var _this11 = this;
+        var _this13 = this;
 
         var result = data;
         var actions = [];
         var buildData = function buildData() {
-          _this11.each(actions, function (_ref) {
+          _this13.each(actions, function (_ref) {
             var action = _ref.action;
             var callback = _ref.callback;
 
-            result = _this11[action](result, callback, result.attributes);
+            result = _this13[action](result, callback, result.attributes);
           });
           return result;
         };
@@ -860,55 +896,55 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         return {
           filter: function filter(callback) {
             actions.push({ action: 'filter', callback: callback });
-            return _this11;
+            return _this13;
           },
           reject: function reject(callback) {
             actions.push({ action: 'reject', callback: callback });
-            return _this11;
+            return _this13;
           },
           map: function map(callback) {
             actions.push({ action: 'map', callback: callback });
-            return _this11;
+            return _this13;
           },
           reduce: function reduce(callback, initialValue) {
             actions.push({ action: 'reduce', callback: callback, attributes: initialValue });
-            return _this11;
+            return _this13;
           },
           find: function find(callback, useBinarySearch) {
             actions.push({ action: 'find', callback: callback, attributes: useBinarySearch });
-            return _this11;
+            return _this13;
           },
           findKey: function findKey(callback) {
             actions.push({ action: 'findKey', callback: callback });
-            return _this11;
+            return _this13;
           },
           pick: function pick(callback) {
             actions.push({ action: 'pick', callback: callback });
-            return _this11;
+            return _this13;
           },
           flatten: function flatten() {
             actions.push({ action: 'flatten' });
-            return _this11;
+            return _this13;
           },
           first: function first() {
             actions.push({ action: 'first' });
-            return _this11;
+            return _this13;
           },
           reverse: function reverse() {
             actions.push({ action: 'reverse' });
-            return _this11;
+            return _this13;
           },
           rest: function rest() {
             actions.push({ action: 'rest' });
-            return _this11;
+            return _this13;
           },
           drop: function drop(n) {
             actions.push({ action: 'drop', callback: n });
-            return _this11;
+            return _this13;
           },
           dropRight: function dropRight(n) {
             actions.push({ action: 'dropRight', callback: n });
-            return _this11;
+            return _this13;
           },
           value: function value() {
             return buildData();
@@ -918,19 +954,49 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
     }, {
       key: 'kitten',
       value: function kitten() {
-        var _this12 = this;
+        var _this14 = this;
 
         this.each(this.times(this.random(5, 20)), function () {
-          var greenOrRed = _this12.random() ? 'green' : 'red';
-          var orangeOrBlue = _this12.random() ? 'orange' : 'blue';
-          var meowOrPurr = _this12.random() ? 'meow' : 'purrr';
-          var color = _this12.random() ? greenOrRed : orangeOrBlue;
+          var greenOrRed = _this14.random() ? 'green' : 'red';
+          var orangeOrBlue = _this14.random() ? 'orange' : 'blue';
+          var meowOrPurr = _this14.random() ? 'meow' : 'purrr';
+          var color = _this14.random() ? greenOrRed : orangeOrBlue;
           var meow = function meow() {
             return meowOrPurr;
           };
-          var allTheMeows = _this12.map(_this12.times(_this12.random(1, _this12.random(2, 4))), meow).join(' ');
+          var allTheMeows = _this14.map(_this14.times(_this14.random(1, _this14.random(2, 4))), meow).join(' ');
           console.log('%c' + allTheMeows, 'color: ' + color);
         });
+      }
+    }, {
+      key: 'Promise',
+      value: function Promise(fn) {
+        var then = function then(onResolved, onRejected) {
+          var done = false;
+          var resolve = function resolve(value) {
+            if (done) {
+              return;
+            }
+            done = true;
+            onResolved(value);
+          };
+
+          var reject = function reject(val) {
+            if (done) {
+              return;
+            }
+            done = true;
+            onRejected(val);
+          };
+
+          try {
+            fn(resolve, reject);
+          } catch (error) {
+            reject(error);
+          }
+        };
+
+        return { then: then };
       }
     }, {
       key: 'exportModule',

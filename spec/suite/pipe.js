@@ -43,6 +43,7 @@ describe('Pipe', () => {
     const createArray = (value) => [value];
     const result = yo.pipeRight(addWorld, createArray)('hello');
 
+    expect(result).not.to.be.an('array');
     expect(result).to.equal('hello world');
   });
 });

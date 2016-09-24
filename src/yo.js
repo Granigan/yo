@@ -25,16 +25,17 @@
       this.callFunctor = (val, fn) => fn(val);
 
       this.negate = (fn) => (...args) => !fn(...args);
-
       this.flip = (fn) => (...args) => fn(this.reverse(args));
-
       this.toArray = (...args) => this.flatten(args);
+      this.noop = () => {};
+      this.passthru = (args) => args;
+      this.sum = (...args) => this.reduce(args, (initial, n) => initial + n, 0);
+      this.add = (a, b) => a + b;
+      this.minus = (a, b) => a - b; // TODO: rename
+      this.multiply = (a, b) => a * b;
+      this.divide = (a, b) => a / b;
     }
 
-    noop() {}
-    passthru(...args) {
-      return args;
-    }
     isUndefined(val) {
       return val === void 0;
     }
@@ -42,8 +43,7 @@
       return typeof val === 'string';
     }
     isObject(val) {
-      // returns true on array
-      return typeof val === 'object';
+      return typeof val === 'object' && val.constructor !== Array;
     }
     isFunction(val) {
       return typeof val === 'function';
@@ -64,7 +64,7 @@
       return typeof val === 'number' && val.constructor === Number;
     }
     isArray(val) {
-      return val && this.isObject(val) && val.constructor === Array;
+      return val && val.constructor === Array;
     }
 
     isEqual(a, b) {
@@ -111,6 +111,12 @@
     every(arr) {
       return this.reduce(arr, (bool, item) => {
         let result = bool;
+
+        // Not sure if support for functions should be implemented
+        if (this.isFunction(item)) {
+          result = item();
+        }
+
         if (!item) {
           result = false;
         }
@@ -121,6 +127,12 @@
     some(arr) {
       return this.reduce(arr, (bool, item) => {
         let result = bool;
+
+        // Not sure if support for functions should be implemented
+        if (this.isFunction(item)) {
+          result = item();
+        }
+
         if (item) {
           result = true;
         }
@@ -243,15 +255,15 @@
     }
 
     extend(...args) {
-      const newObj = {};
-
-      this.each(args, (arg) => {
+      /* eslint-disable no-param-reassign */
+      return this.reduce(args, (initial, arg) => {
         for (const prop in arg) {
-          newObj[prop] = arg[prop];
+          initial[prop] = arg[prop];
         }
-      });
 
-      return newObj;
+        return initial;
+      }, {});
+      /* eslint-disable no-param-reassign */
     }
 
     css(selector, attr) {
@@ -487,6 +499,14 @@
       return value;
     }
 
+    head(arr) {
+      return this.first(arr);
+    }
+
+    tail(arr) {
+      return this.rest(arr);
+    }
+
     slice(arr, start, end) {
       let noEndInSight = end;
       if (this.isUndefined(end)) {
@@ -540,7 +560,7 @@
     }
 
     indexOf(arr, value, fromIndex) {
-      (fromIndex ? this.slice(arr, fromIndex) : arr).indexOf(value);
+      return (fromIndex ? this.slice(arr, fromIndex) : arr).indexOf(value);
     }
 
     filter(arr, callback) {
@@ -723,6 +743,35 @@
         const allTheMeows = this.map(this.times(this.random(1, this.random(2, 4))), meow).join(' ');
         console.log(`%c${allTheMeows}`, `color: ${color}`);
       });
+    }
+
+    Promise(fn) {
+      const then = (onResolved, onRejected) => {
+        let done = false;
+        const resolve = (value) => {
+          if (done) {
+            return;
+          }
+          done = true;
+          onResolved(value);
+        };
+
+        const reject = (val) => {
+          if (done) {
+            return;
+          }
+          done = true;
+          onRejected(val);
+        };
+
+        try {
+          fn(resolve, reject);
+        } catch (error) {
+          reject(error);
+        }
+      };
+
+      return {then};
     }
 
     exportModule(name, func) {
