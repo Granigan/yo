@@ -37,13 +37,46 @@
       const sum = (...args) => this.reduce(args, add, 0);
       const mean = (...args) => divide(sum(...args), args.length);
 
+      const debounce = (fn, delay = 0) => {
+        let timeout;
+
+        return (...args) => {
+          if (timeout) {
+            clearTimeout(timeout);
+          }
+
+          timeout = setTimeout(() => {
+            timeout = null;
+            fn(...args);
+          }, delay);
+        };
+      };
+
+      const throttle = (fn, delay = 0) => {
+        let wait = false;
+
+        return (...args) => {
+          if (wait) {
+            return;
+          }
+          wait = true;
+
+          setTimeout(() => {
+            wait = false;
+            fn(...args);
+          }, delay);
+        };
+      };
+
       this.mixin({
         sum,
         add,
         subtract,
         multiply,
         divide,
-        mean
+        mean,
+        debounce,
+        throttle
       });
     }
 
