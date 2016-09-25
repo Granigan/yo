@@ -6,16 +6,20 @@ const babel = require('gulp-babel');
 const mocha = require('gulp-mocha');
 const watch = require('gulp-watch');
 
-gulp.task('lint', () =>
-  gulp.src(['src/*.js', 'spec/**/*.js', '*.js'])
+const lint = (files) =>
+  gulp.src(files)
     .pipe(plumber())
     .pipe(eslint())
     .pipe(eslint.format())
     .pipe(eslint.failAfterError())
-    .on('error', notify.onError('Error: <%= error.message %>'))
-);
+    .on('error', notify.onError('Error: <%= error.message %>'));
 
-gulp.task('babel', ['lint'], () =>
+
+gulp.task('lint-spec', () => lint('spec/**/*.js'));
+gulp.task('lint-src', () => lint('src/*.js'));
+gulp.task('lint-gulp', () => lint('*.js'));
+
+gulp.task('babel', ['lint-src'], () =>
   gulp.src('src/*.js')
     .pipe(plumber())
     .pipe(babel({
@@ -25,7 +29,7 @@ gulp.task('babel', ['lint'], () =>
     .on('error', notify.onError('Error: <%= error.message %>'))
 );
 
-gulp.task('test', ['babel'], () =>
+gulp.task('test', ['lint-spec', 'babel'], () =>
   gulp
     .src('spec/**/*.js', {read: false})
     .pipe(plumber())
@@ -33,8 +37,8 @@ gulp.task('test', ['babel'], () =>
     .on('error', notify.onError('Error: <%= error.message %>'))
 );
 
-gulp.task('default', ['test'], () => {
+gulp.task('default', ['lint-gulp', 'test'], () => {
   // watch('src/*.js', () => gulp.run(['babel']));
-  watch('*.js', () => gulp.run(['lint']));
+  watch('*.js', () => gulp.run(['lint-gulp']));
   watch(['src/*.js', 'spec/**/*.js'], () => gulp.run(['test']));
 });

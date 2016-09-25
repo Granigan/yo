@@ -71,7 +71,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
       this.callFunctor = function (val, fn) {
         return fn(val);
       };
-
       this.negate = function (fn) {
         return function () {
           return !fn.apply(undefined, arguments);
@@ -93,7 +92,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
         return _this.flatten(args);
       };
-      this.noop = function () {};
       this.passthru = function (args) {
         return args;
       };
@@ -164,7 +162,37 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         };
       };
 
+      var matches = function matches(obj, props) {
+        return _this.every(_this.keys(obj), function (key) {
+          return obj[key] === props[key];
+        });
+      };
+
+      var where = function where(arr, props) {
+        return _this.filter(arr, function (entry) {
+          return matches(entry, props);
+        });
+      };
+
+      var isFalsey = function isFalsey(arg) {
+        return !arg;
+      };
+      var isTruthy = function isTruthy(arg) {
+        return !isFalsey(arg);
+      };
+      var compact = function compact(arr) {
+        return _this.filter(arr, isTruthy);
+      };
+
+      var chunk = function chunk(arr, size) {
+        var chunks = Math.ceil(arr.length / size);
+        return _this.map(_this.times(chunks), function (i) {
+          return _this.slice(arr, i * size, i * size + size);
+        });
+      };
+
       this.mixin({
+        noop: function noop() {},
         sum: sum,
         add: add,
         subtract: subtract,
@@ -172,7 +200,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         divide: divide,
         mean: mean,
         debounce: debounce,
-        throttle: throttle
+        throttle: throttle,
+        matches: matches,
+        where: where,
+        compact: compact,
+        isFalsey: isFalsey,
+        isTruthy: isTruthy,
+        chunk: chunk
       });
     }
 
@@ -301,13 +335,15 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
       }
     }, {
       key: 'every',
-      value: function every(arr) {
+      value: function every(arr, callback) {
         var _this4 = this;
 
         return this.reduce(arr, function (bool, item) {
           var result = bool;
 
-          // Not sure if support for functions should be implemented
+          if (_this4.isFunction(callback)) {
+            result = callback(item);
+          }
           if (_this4.isFunction(item)) {
             result = item();
           }
@@ -320,13 +356,15 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
       }
     }, {
       key: 'some',
-      value: function some(arr) {
+      value: function some(arr, callback) {
         var _this5 = this;
 
         return this.reduce(arr, function (bool, item) {
           var result = bool;
 
-          // Not sure if support for functions should be implemented
+          if (_this5.isFunction(callback)) {
+            result = callback(item);
+          }
           if (_this5.isFunction(item)) {
             result = item();
           }
@@ -454,12 +492,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
           return arr.map(callback);
         }
 
-        var result = [];
-        this.each(arr, function (data, i) {
-          result.push(callback(data, i, arr));
-        });
-
-        return result;
+        return this.reduce(arr, function (initial, data, i) {
+          return initial.concat(callback(data, i, arr));
+        }, []);
       }
     }, {
       key: 'each',
@@ -517,11 +552,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         if (!this.isString(str)) {
           return false;
         }
-        if (!str || str.length < 2) {
+        if (!str || str.trim().length < 2) {
           return true;
         }
 
-        var word = this.lowercase(str).replace(/[\W_]/g, '');
+        var word = this.lowercase(str).trim().replace(/[\W_]/g, '');
 
         return word === this.reverse(word);
       }
@@ -794,20 +829,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
     }, {
       key: 'min',
       value: function min() {
-        for (var _len14 = arguments.length, args = Array(_len14), _key14 = 0; _key14 < _len14; _key14++) {
-          args[_key14] = arguments[_key14];
-        }
-
-        return Math.min.apply(null, this.flatten(args));
+        return Math.min.apply(Math, arguments);
       }
     }, {
       key: 'max',
       value: function max() {
-        for (var _len15 = arguments.length, args = Array(_len15), _key15 = 0; _key15 < _len15; _key15++) {
-          args[_key15] = arguments[_key15];
-        }
-
-        return Math.max.apply(null, this.flatten(args));
+        return Math.max.apply(Math, arguments);
       }
     }, {
       key: 'gt',

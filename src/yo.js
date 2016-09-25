@@ -23,11 +23,9 @@
         , {});
 
       this.callFunctor = (val, fn) => fn(val);
-
       this.negate = (fn) => (...args) => !fn(...args);
       this.flip = (fn) => (...args) => fn(this.reverse(args));
       this.toArray = (...args) => this.flatten(args);
-      this.noop = () => {};
       this.passthru = (args) => args;
 
       const add = (a, b) => a + b;
@@ -68,7 +66,24 @@
         };
       };
 
+      const matches = (obj, props) =>
+        this.every(this.keys(obj), (key) => obj[key] === props[key]);
+
+      const where = (arr, props) =>
+        this.filter(arr, (entry) => matches(entry, props));
+
+      const isFalsey = (arg) => !arg;
+      const isTruthy = (arg) => !isFalsey(arg);
+      const compact = (arr) => this.filter(arr, isTruthy);
+
+      const chunk = (arr, size) => {
+        const chunks = Math.ceil(arr.length / size);
+        return this.map(this.times(chunks), (i) =>
+          this.slice(arr, (i * size), (i * size + size)));
+      };
+
       this.mixin({
+        noop: () => {},
         sum,
         add,
         subtract,
@@ -76,7 +91,13 @@
         divide,
         mean,
         debounce,
-        throttle
+        throttle,
+        matches,
+        where,
+        compact,
+        isFalsey,
+        isTruthy,
+        chunk
       });
     }
 
@@ -162,11 +183,13 @@
       throw new Error(str);
     }
 
-    every(arr) {
+    every(arr, callback) {
       return this.reduce(arr, (bool, item) => {
         let result = bool;
 
-        // Not sure if support for functions should be implemented
+        if (this.isFunction(callback)) {
+          result = callback(item);
+        }
         if (this.isFunction(item)) {
           result = item();
         }
@@ -178,11 +201,13 @@
       }, true);
     }
 
-    some(arr) {
+    some(arr, callback) {
       return this.reduce(arr, (bool, item) => {
         let result = bool;
 
-        // Not sure if support for functions should be implemented
+        if (this.isFunction(callback)) {
+          result = callback(item);
+        }
         if (this.isFunction(item)) {
           result = item();
         }
@@ -288,12 +313,9 @@
         return arr.map(callback);
       }
 
-      const result = [];
-      this.each(arr, (data, i) => {
-        result.push(callback(data, i, arr));
-      });
-
-      return result;
+      return this.reduce(arr, (initial, data, i) =>
+        initial.concat(callback(data, i, arr))
+      , []);
     }
 
     each(arr, callback) {
@@ -341,11 +363,11 @@
       if (!this.isString(str)) {
         return false;
       }
-      if (!str || str.length < 2) {
+      if (!str || str.trim().length < 2) {
         return true;
       }
 
-      const word = this.lowercase(str).replace(/[\W_]/g, '');
+      const word = this.lowercase(str).trim().replace(/[\W_]/g, '');
 
       return word === this.reverse(word);
     }
@@ -590,11 +612,11 @@
     }
 
     min(...args) {
-      return Math.min.apply(null, this.flatten(args));
+      return Math.min(...args);
     }
 
     max(...args) {
-      return Math.max.apply(null, this.flatten(args));
+      return Math.max(...args);
     }
 
     gt(a, b) {

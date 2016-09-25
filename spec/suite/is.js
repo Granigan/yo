@@ -7,7 +7,7 @@ const hasValue = '123';
 describe('Is functions', () => {
   it('isPalindrome otto', () => expect(yo.isPalindrome('otto')).to.equal(true));
   it('isPalindrome race car', () => expect(yo.isPalindrome('race car')).to.equal(true));
-  it('isPalindrome             ', () => expect(yo.isPalindrome('             ')).to.equal(true));
+  it('isPalindrome "            "', () => expect(yo.isPalindrome('             ')).to.equal(true));
   it('isPalindrome 0_0 (: /-\\ :) 0-0', () =>
     expect(yo.isPalindrome('0_0 (: /-\\ :) 0-0')).to.equal(true));
 
@@ -25,7 +25,11 @@ describe('Is functions', () => {
   it('isFinite', () => expect(yo.isFinite(1)).to.equal(true));
   it('isPositive', () => expect(yo.isPositive(1)).to.equal(true));
   it('isNegative', () => expect(yo.isNegative(-1)).to.equal(true));
-
+  it('isTruthy 1', () => expect(yo.isTruthy(1)).to.equal(true));
+  it('isTruthy true', () => expect(yo.isTruthy(true)).to.equal(true));
+  it('isTruthy []', () => expect(yo.isTruthy([])).to.equal(true));
+  it('isTruthy {}', () => expect(yo.isTruthy({})).to.equal(true));
+  it('isTruthy "string"', () => expect(yo.isTruthy('string')).to.equal(true));
   it('isEqual integer', () => expect(yo.isEqual(1, 1)).to.equal(true));
   it('isEqual object', () => expect(yo.isEqual({a: 1}, {a: 1})).to.equal(true));
   it('isEqual array', () => expect(yo.isEqual([1, 2], [1, 2])).to.equal(true));
@@ -39,11 +43,16 @@ describe('Is functions', () => {
   it('not isFunction', () => expect(yo.isFunction([])).to.equal(false));
   it('not isArray', () => expect(yo.isArray({obj: true})).to.equal(false));
   it('not isEmpty', () => expect(yo.isEmpty([1, 2, 3])).to.equal(false));
-
   it('not isFinite', () => expect(yo.isFinite(Infinity)).to.equal(false));
   it('not isPositive', () => expect(yo.isPositive(-1)).to.equal(false));
   it('not isNegative', () => expect(yo.isNegative(1)).to.equal(false));
   it('not isEqual integer', () => expect(yo.isEqual(1, 2)).to.equal(false));
   it('not isEqual object', () => expect(yo.isEqual({a: 1}, {a: 2})).to.equal(false));
   it('not isEqual array', () => expect(yo.isEqual([1, 1], [2, 2])).to.equal(false));
+  it('not isTruthy false', () => expect(yo.isTruthy(false)).to.equal(false));
+  it('not isTruthy 0', () => expect(yo.isTruthy(0)).to.equal(false));
+  it('not isTruthy null', () => expect(yo.isTruthy(null)).to.equal(false));
+  it('not isTruthy undefined', () => expect(yo.isTruthy(undefined)).to.equal(false));
+  it('not isTruthy "empty string"', () => expect(yo.isTruthy('')).to.equal(false));
+  it('not isTruthy NaN', () => expect(yo.isTruthy(NaN)).to.equal(false));
 });

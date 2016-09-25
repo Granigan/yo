@@ -20,4 +20,10 @@ describe('Math', () => {
   it('Should calculate the mean value', () => {
     expect(yo.mean(4, 2, 8, 6)).to.eql(5);
   });
+  it('Should find max value', () => {
+    expect(yo.max(4, 2, 8, 6)).to.eql(8);
+  });
+  it('Should find min value', () => {
+    expect(yo.min(4, 2, 8, 6)).to.eql(2);
+  });
 });
