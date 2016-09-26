@@ -19,7 +19,20 @@ describe('Misc functions', () => {
     expect(nooped).to.eql(undefined);
   });
 
-  it('Should passthru value', () => {
-    expect(yo.passthru({test: true})).to.eql({test: true});
+  describe('Arguments', () => {
+    it('Should passthru value', () => {
+      expect(yo.passthru({test: true})).to.eql({test: true});
+    });
+
+    it('Should return first argument', () => {
+      expect(yo.firstArg(1, 2, 3, 4)).to.equal(1);
+    });
+
+    it('Should return rest of the arguments', () => {
+      expect(yo.restArg(1, 2, 3, 4)).to.eql([2, 3, 4]);
+    });
+    it('Should return last argument', () => {
+      expect(yo.lastArg(1, 2, 3, 4)).to.equal(4);
+    });
   });
 });

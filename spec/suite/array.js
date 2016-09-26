@@ -18,6 +18,18 @@ describe('Array', () => {
     expect(value).to.eql([1, true, {}]);
   });
 
+  it('Should return first item', () => {
+    expect(yo.first([1, 2])).to.equal(1);
+  });
+
+  it('Should return last item', () => {
+    expect(yo.last([1, 2])).to.equal(2);
+  });
+
+  it('Should return initial items, all but the last', () => {
+    expect(yo.initial([1, 2, 3, 4])).to.eql([1, 2, 3]);
+  });
+
   it('Should return chunked array', () => {
     const value = yo.chunk([1, 2, 3, 4, 5, 6, 7, 8], 2);
     expect(value).to.eql([[1, 2], [3, 4], [5, 6], [7, 8]]);
@@ -64,6 +76,11 @@ describe('Array', () => {
       const value = yo.where([{a: 1}, {b: 2}, {a: 1}], {a: 1});
       expect(value).to.be.an('array');
       expect(value).to.eql([{a: 1}, {a: 1}]);
+    });
+
+    it('Should find the very last item using lastOfTheLastOfTheLast', () => {
+      const value = yo.lastOfTheLastOfTheLast([1, 2, [11, 22], [111, [1111, 2222]]]);
+      expect(value).to.equal(2222);
     });
   });
 });

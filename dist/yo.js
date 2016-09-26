@@ -92,8 +92,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
         return _this.flatten(args);
       };
-      this.passthru = function (args) {
-        return args;
+      this.passthru = function (arg) {
+        return arg;
       };
 
       var add = function add(a, b) {
@@ -434,16 +434,18 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
       key: 'keys',
       value: function keys(obj) {
         if (obj === this) {
-          var _keys = Object.getOwnPropertyNames(Object.getPrototypeOf(obj));
+          var prototypeKeys = Object.getOwnPropertyNames(Object.getPrototypeOf(obj));
+          var ownPropertyNames = Object.getOwnPropertyNames(obj);
+          var _keys = ownPropertyNames.concat(prototypeKeys);
           return this.filter(_keys, function (key) {
             return key !== 'constructor';
           });
         }
 
         var keys = [];
-        for (var prop in obj) {
-          keys.push(prop);
-        }
+        this.forIn(obj, function (val, key) {
+          return keys.push(key);
+        });
         return keys;
       }
     }, {
@@ -508,6 +510,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         }
 
         return arr;
+      }
+    }, {
+      key: 'forIn',
+      value: function forIn(obj, fn) {
+        for (var key in obj) {
+          fn(obj[key], key);
+        }
       }
     }, {
       key: 'extend',
@@ -776,6 +785,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         return value;
       }
     }, {
+      key: 'initial',
+      value: function initial(arr) {
+        return this.slice(arr, 0, arr.length - 1);
+      }
+    }, {
       key: 'head',
       value: function head(arr) {
         return this.first(arr);
@@ -825,6 +839,29 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
           return _this11.nth(args, n);
         };
+      }
+    }, {
+      key: 'firstArg',
+      value: function firstArg(arg) {
+        return this.passthru(arg);
+      }
+    }, {
+      key: 'restArg',
+      value: function restArg() {
+        for (var _len14 = arguments.length, args = Array(_len14), _key14 = 0; _key14 < _len14; _key14++) {
+          args[_key14] = arguments[_key14];
+        }
+
+        return this.rest(args);
+      }
+    }, {
+      key: 'lastArg',
+      value: function lastArg() {
+        for (var _len15 = arguments.length, args = Array(_len15), _key15 = 0; _key15 < _len15; _key15++) {
+          args[_key15] = arguments[_key15];
+        }
+
+        return this.last(args);
       }
     }, {
       key: 'min',
@@ -900,7 +937,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
     }, {
       key: 'lastOfTheLastOfTheLast',
       value: function lastOfTheLastOfTheLast(arr) {
-        var lastItem = this.first(this.reverse(arr));
+        var lastItem = this.last(arr);
 
         if (this.isArray(lastItem) && this.size(lastItem)) {
           return this.lastOfTheLastOfTheLast(lastItem);

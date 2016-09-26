@@ -26,7 +26,7 @@
       this.negate = (fn) => (...args) => !fn(...args);
       this.flip = (fn) => (...args) => fn(this.reverse(args));
       this.toArray = (...args) => this.flatten(args);
-      this.passthru = (args) => args;
+      this.passthru = (arg) => arg;
 
       const add = (a, b) => a + b;
       const subtract = (a, b) => a - b;
@@ -271,14 +271,14 @@
 
     keys(obj) {
       if (obj === this) {
-        const keys = Object.getOwnPropertyNames(Object.getPrototypeOf(obj));
+        const prototypeKeys = Object.getOwnPropertyNames(Object.getPrototypeOf(obj));
+        const ownPropertyNames = Object.getOwnPropertyNames(obj);
+        const keys = ownPropertyNames.concat(prototypeKeys);
         return this.filter(keys, (key) => key !== 'constructor');
       }
 
       const keys = [];
-      for (const prop in obj) {
-        keys.push(prop);
-      }
+      this.forIn(obj, (val, key) => keys.push(key));
       return keys;
     }
 
@@ -328,6 +328,12 @@
       }
 
       return arr;
+    }
+
+    forIn(obj, fn) {
+      for (const key in obj) {
+        fn(obj[key], key);
+      }
     }
 
     extend(...args) {
@@ -575,6 +581,10 @@
       return value;
     }
 
+    initial(arr) {
+      return this.slice(arr, 0, arr.length - 1);
+    }
+
     head(arr) {
       return this.first(arr);
     }
@@ -609,6 +619,18 @@
 
     nthArg(n) {
       return (...args) => this.nth(args, n);
+    }
+
+    firstArg(arg) {
+      return this.passthru(arg);
+    }
+
+    restArg(...args) {
+      return this.rest(args);
+    }
+
+    lastArg(...args) {
+      return this.last(args);
     }
 
     min(...args) {
@@ -674,7 +696,7 @@
     }
 
     lastOfTheLastOfTheLast(arr) {
-      const lastItem = this.first(this.reverse(arr));
+      const lastItem = this.last(arr);
 
       if (this.isArray(lastItem) && this.size(lastItem)) {
         return this.lastOfTheLastOfTheLast(lastItem);
