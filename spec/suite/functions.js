@@ -14,6 +14,18 @@ describe('Misc functions', () => {
     expect(flipped('a', 'b', 'c', 'd')).to.eql(['d', 'c', 'b', 'a']);
   });
 
+  it('Should curry function', () => {
+    const curried = yo.curry((val, another) => val + another);
+    const curriedDeeper = yo.curry((a, b, c, d, e) => a + b + c + d + e);
+
+    expect(curried).to.be.an('function');
+    expect(curried(1)).to.be.an('function');
+    expect(curried(1, 3)).to.equal(4);
+    expect(curried(1)(3)).to.equal(4);
+    expect(curriedDeeper(2)(2)(2)(2)).to.be.an('function');
+    expect(curriedDeeper(2)(2)(2)(2)(2)).to.equal(10);
+  });
+
   it('noop should not do anything', () => {
     const nooped = yo.noop();
     expect(nooped).to.eql(undefined);

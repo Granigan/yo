@@ -294,14 +294,17 @@
       return this.range(n);
     }
 
-    curry(...args) {
-      const slicedArgs = nativeSlice.call(args, 1);
-      const fn = this.first(slicedArgs);
+    curry(fn) {
+      const curriedFn = (...args) => {
+        if (args.length < fn.length) {
+          return (...newArgs) =>
+            curriedFn(...args.concat(newArgs));
+        }
 
-      return (...newSetOfArgs) => {
-        const newArgs = nativeSlice.call(newSetOfArgs);
-        return fn.apply(this, slicedArgs.concat(newArgs));
+        return fn(...args);
       };
+
+      return curriedFn;
     }
 
     map(arr, callback) {
@@ -683,6 +686,7 @@
         return [];
       }
 
+      // TODO: This is wrong?
       if (this.isFunction(arr.filter)) {
         return arr.filter(callback);
       }
