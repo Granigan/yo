@@ -27,6 +27,7 @@
       this.flip = (fn) => (...args) => fn(this.reverse(args));
       this.toArray = (...args) => this.flatten(args);
       this.passthru = (arg) => arg;
+      this.now = () => new Date();
 
       const add = (a, b) => a + b;
       const subtract = (a, b) => a - b;

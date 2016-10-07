@@ -95,6 +95,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
       this.passthru = function (arg) {
         return arg;
       };
+      this.now = function () {
+        return new Date();
+      };
 
       var add = function add(a, b) {
         return a + b;
