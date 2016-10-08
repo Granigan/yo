@@ -12,6 +12,7 @@ describe('Is functions', () => {
     expect(yo.isPalindrome('0_0 (: /-\\ :) 0-0')).to.equal(true));
 
   it('isUndefined', () => expect(yo.isUndefined(noValue)).to.equal(true));
+  it('isDefined', () => expect(yo.isDefined(hasValue)).to.equal(true));
   it('isString', () => expect(yo.isString('string')).to.equal(true));
   it('isNumber', () => expect(yo.isNumber(123)).to.equal(true));
   it('isObject', () => expect(yo.isObject({obj: true})).to.equal(true));
@@ -36,6 +37,7 @@ describe('Is functions', () => {
 
   it('not isPalindrome', () => expect(yo.isPalindrome('not palindrome')).to.equal(false));
   it('not isUndefined', () => expect(yo.isUndefined(hasValue)).to.equal(false));
+  it('not isDefined', () => expect(yo.isDefined(noValue)).to.equal(false));
   it('not isString', () => expect(yo.isString(123)).to.equal(false));
   it('not isNumber', () => expect(yo.isNumber('123')).to.equal(false));
   it('not isObject', () => expect(yo.isObject('not a object')).to.equal(false));

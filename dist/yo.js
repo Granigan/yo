@@ -232,6 +232,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         return val === void 0;
       }
     }, {
+      key: 'isDefined',
+      value: function isDefined(val) {
+        return this.negate(this.isUndefined)(val);
+      }
+    }, {
       key: 'isString',
       value: function isString(val) {
         return typeof val === 'string';

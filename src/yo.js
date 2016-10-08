@@ -115,6 +115,9 @@
     isUndefined(val) {
       return val === void 0;
     }
+    isDefined(val) {
+      return this.negate(this.isUndefined)(val);
+    }
     isString(val) {
       return typeof val === 'string';
     }
