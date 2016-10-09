@@ -218,6 +218,20 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         return { index: index, item: arrays[index], value: max };
       };
 
+      var findPairsBySum = function findPairsBySum(arr, targetValue) {
+        return _this.reduce(arr, function (initial, value, key) {
+          var filtered = _this.filter(_this.drop(arr, key), function (v) {
+            return value + v === targetValue;
+          });
+
+          if (_this.size(filtered)) {
+            initial.push([value, filtered[0]]);
+          }
+
+          return initial;
+        }, []);
+      };
+
       this.mixin({
         noop: function noop() {},
         sum: sum,
@@ -238,7 +252,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         merge: merge,
         mergeAndSort: mergeAndSort,
         duplicate: duplicate,
-        findLargestSubArrayBySum: findLargestSubArrayBySum
+        findLargestSubArrayBySum: findLargestSubArrayBySum,
+        findPairsBySum: findPairsBySum
       });
     }
 
@@ -278,7 +293,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
     }, {
       key: 'isObject',
       value: function isObject(val) {
-        return (typeof val === 'undefined' ? 'undefined' : _typeof(val)) === 'object' && val.constructor !== Array;
+        return !this.isNull(val) && (typeof val === 'undefined' ? 'undefined' : _typeof(val)) === 'object' && val.constructor !== Array;
       }
     }, {
       key: 'isFunction',
@@ -313,7 +328,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
     }, {
       key: 'isArray',
       value: function isArray(val) {
-        return val && (Array.isArray ? Array.isArray(val) : val.constructor === Array);
+        return !this.isNull(val) && val && (Array.isArray ? Array.isArray(val) : val.constructor === Array);
       }
     }, {
       key: 'isEqual',
@@ -367,7 +382,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         }
 
         return this.reduce(arr, function (a, b) {
-          return a.concat(_this3.isArray(b) ? _this3.flatten(b) : b);
+          return _this3.merge(a, _this3.isArray(b) ? _this3.flatten(b) : b);
         }, []);
       }
     }, {
@@ -478,7 +493,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         if (obj === this) {
           var prototypeKeys = Object.getOwnPropertyNames(Object.getPrototypeOf(obj));
           var ownPropertyNames = Object.getOwnPropertyNames(obj);
-          var _keys = ownPropertyNames.concat(prototypeKeys);
+          var _keys = this.merge(ownPropertyNames, prototypeKeys);
           return this.filter(_keys, function (key) {
             return key !== 'constructor';
           });
@@ -539,7 +554,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         }
 
         return this.reduce(arr, function (initial, data, i) {
-          return initial.concat(callback(data, i, arr));
+          initial.push(callback(data, i, arr));
+          return initial;
         }, []);
       }
     }, {
@@ -587,9 +603,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         var elements = this.$(selector);
 
         var setStyle = function setStyle(element) {
-          var e = element; // damn eslint
           _this6.each(_this6.keys(attr), function (prop) {
-            e.style[prop] = attr[prop];
+            element.style[prop] = attr[prop];
           });
         };
 

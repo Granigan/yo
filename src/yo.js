@@ -95,6 +95,19 @@
         return {index, item: arrays[index], value: max};
       };
 
+      const findPairsBySum = (arr, targetValue) =>
+        this.reduce(arr, (initial, value, key) => {
+          const filtered = this.filter(this.drop(arr, key), (v) =>
+            value + v === targetValue
+          );
+
+          if (this.size(filtered)) {
+            initial.push([value, filtered[0]]);
+          }
+
+          return initial;
+        }, []);
+
       this.mixin({
         noop: () => {},
         sum,
@@ -115,7 +128,8 @@
         merge,
         mergeAndSort,
         duplicate,
-        findLargestSubArrayBySum
+        findLargestSubArrayBySum,
+        findPairsBySum
       });
     }
 
@@ -142,7 +156,7 @@
       return typeof val === 'string';
     }
     isObject(val) {
-      return typeof val === 'object' && val.constructor !== Array;
+      return !this.isNull(val) && typeof val === 'object' && val.constructor !== Array;
     }
     isFunction(val) {
       return typeof val === 'function';
@@ -163,7 +177,8 @@
       return typeof val === 'number' && val.constructor === Number;
     }
     isArray(val) {
-      return val && (Array.isArray ? Array.isArray(val) : val.constructor === Array);
+      return !this.isNull(val) && val &&
+        (Array.isArray ? Array.isArray(val) : val.constructor === Array);
     }
 
     isEqual(a, b) {
@@ -200,7 +215,9 @@
         return [];
       }
 
-      return this.reduce(arr, (a, b) => a.concat(this.isArray(b) ? this.flatten(b) : b), []);
+      return this.reduce(arr, (a, b) =>
+        this.merge(a, this.isArray(b) ? this.flatten(b) : b)
+      , []);
     }
 
     error(str) {
@@ -297,7 +314,7 @@
       if (obj === this) {
         const prototypeKeys = Object.getOwnPropertyNames(Object.getPrototypeOf(obj));
         const ownPropertyNames = Object.getOwnPropertyNames(obj);
-        const keys = ownPropertyNames.concat(prototypeKeys);
+        const keys = this.merge(ownPropertyNames, prototypeKeys);
         return this.filter(keys, (key) => key !== 'constructor');
       }
 
@@ -340,9 +357,10 @@
         return arr.map(callback);
       }
 
-      return this.reduce(arr, (initial, data, i) =>
-        initial.concat(callback(data, i, arr))
-      , []);
+      return this.reduce(arr, (initial, data, i) => {
+        initial.push(callback(data, i, arr));
+        return initial;
+      }, []);
     }
 
     each(arr, callback) {
@@ -379,9 +397,8 @@
       const elements = this.$(selector);
 
       const setStyle = (element) => {
-        const e = element; // damn eslint
         this.each(this.keys(attr), (prop) => {
-          e.style[prop] = attr[prop];
+          element.style[prop] = attr[prop];
         });
       };
 

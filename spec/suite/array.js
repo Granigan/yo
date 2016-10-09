@@ -101,5 +101,11 @@ describe('Array', () => {
       expect(value).to.be.an('object');
       expect(value).to.eql({index: 0, item: [1, 2, 3, 4, 5000], value: 5010});
     });
+
+    it('Should find the pairs that sum up to a specific value', () => {
+      const value = yo.findPairsBySum([10, 5, 6, 7, 2, 8, 1, 9, 14], 15);
+      expect(value).to.be.an('array');
+      expect(value).to.eql([[10, 5], [6, 9], [7, 8], [1, 14]]);
+    });
   });
 });
