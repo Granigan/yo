@@ -121,6 +121,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
       var mean = function mean() {
         return divide(sum.apply(undefined, arguments), arguments.length);
       };
+      var factorial = function factorial(n) {
+        return _this.reduce(_this.rest(_this.times(n + 1)), multiply, 1);
+      };
 
       var debounce = function debounce(fn) {
         var delay = arguments.length <= 1 || arguments[1] === undefined ? 0 : arguments[1];
@@ -202,6 +205,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         multiply: multiply,
         divide: divide,
         mean: mean,
+        factorial: factorial,
         debounce: debounce,
         throttle: throttle,
         matches: matches,

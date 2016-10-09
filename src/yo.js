@@ -35,6 +35,7 @@
       const divide = (a, b) => a / b;
       const sum = (...args) => this.reduce(args, add, 0);
       const mean = (...args) => divide(sum(...args), args.length);
+      const factorial = (n) => this.reduce(this.rest(this.times(n + 1)), multiply, 1);
 
       const debounce = (fn, delay = 0) => {
         let timeout;
@@ -91,6 +92,7 @@
         multiply,
         divide,
         mean,
+        factorial,
         debounce,
         throttle,
         matches,
