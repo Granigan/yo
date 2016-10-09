@@ -4,6 +4,7 @@ const expect = require('expect.js');
 describe('Math', () => {
   it('Should sum values', () => {
     expect(yo.sum(1, 2, 3)).to.eql(6);
+    expect(yo.sum([1, 2, 3])).to.eql(6);
   });
   it('Should add values', () => {
     expect(yo.add(1, 2)).to.eql(3);

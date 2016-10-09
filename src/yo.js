@@ -33,7 +33,7 @@
       const subtract = (a, b) => a - b;
       const multiply = (a, b) => a * b;
       const divide = (a, b) => a / b;
-      const sum = (...args) => this.reduce(args, add, 0);
+      const sum = (...args) => this.reduce(this.flatten(args), add, 0);
       const mean = (...args) => divide(sum(...args), args.length);
       const factorial = (n) => this.reduce(this.rest(this.times(n + 1)), multiply, 1);
 
@@ -84,6 +84,17 @@
           this.slice(arr, (i * size), (i * size + size)));
       };
 
+      const merge = (a, b) => [].concat(a).concat(b);
+      const mergeAndSort = (a, b) => merge(a, b).sort((c, d) => c - d);
+      const duplicate = (arr) => merge(arr, arr);
+
+      const findLargestSubArrayBySum = (arrays) => {
+        const maxes = this.map(arrays, (arr) => sum(...arr));
+        const max = this.max(...maxes);
+        const index = this.indexOf(maxes, max);
+        return {index, item: arrays[index], value: max};
+      };
+
       this.mixin({
         noop: () => {},
         sum,
@@ -100,7 +111,11 @@
         compact,
         isFalsey,
         isTruthy,
-        chunk
+        chunk,
+        merge,
+        mergeAndSort,
+        duplicate,
+        findLargestSubArrayBySum
       });
     }
 
@@ -114,6 +129,9 @@
       }
     }
 
+    isNull(val) {
+      return val === null;
+    }
     isUndefined(val) {
       return val === void 0;
     }

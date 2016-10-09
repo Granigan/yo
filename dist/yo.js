@@ -116,7 +116,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
           args[_key7] = arguments[_key7];
         }
 
-        return _this.reduce(args, add, 0);
+        return _this.reduce(_this.flatten(args), add, 0);
       };
       var mean = function mean() {
         return divide(sum.apply(undefined, arguments), arguments.length);
@@ -197,6 +197,27 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         });
       };
 
+      var merge = function merge(a, b) {
+        return [].concat(a).concat(b);
+      };
+      var mergeAndSort = function mergeAndSort(a, b) {
+        return merge(a, b).sort(function (c, d) {
+          return c - d;
+        });
+      };
+      var duplicate = function duplicate(arr) {
+        return merge(arr, arr);
+      };
+
+      var findLargestSubArrayBySum = function findLargestSubArrayBySum(arrays) {
+        var maxes = _this.map(arrays, function (arr) {
+          return sum.apply(undefined, _toConsumableArray(arr));
+        });
+        var max = _this.max.apply(_this, _toConsumableArray(maxes));
+        var index = _this.indexOf(maxes, max);
+        return { index: index, item: arrays[index], value: max };
+      };
+
       this.mixin({
         noop: function noop() {},
         sum: sum,
@@ -213,7 +234,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         compact: compact,
         isFalsey: isFalsey,
         isTruthy: isTruthy,
-        chunk: chunk
+        chunk: chunk,
+        merge: merge,
+        mergeAndSort: mergeAndSort,
+        duplicate: duplicate,
+        findLargestSubArrayBySum: findLargestSubArrayBySum
       });
     }
 
@@ -229,6 +254,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
           this[key] = obj[key];
         }
+      }
+    }, {
+      key: 'isNull',
+      value: function isNull(val) {
+        return val === null;
       }
     }, {
       key: 'isUndefined',

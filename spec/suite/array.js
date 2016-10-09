@@ -44,6 +44,19 @@ describe('Array', () => {
     expect(value4).to.eql([[1, 2, 3], [4, 5, 6], [7, 8, 9], [10]]);
   });
 
+  it('Should duplicate array', () => {
+    expect(yo.duplicate([1, 2, 3, 4, 5])).to.eql([1, 2, 3, 4, 5, 1, 2, 3, 4, 5]);
+  });
+
+  it('Should merge two arraya', () => {
+    expect(yo.merge([1, 2, 3], [4, 5])).to.eql([1, 2, 3, 4, 5]);
+  });
+
+  it('Should merge and sort two arrays', () => {
+    const value = yo.mergeAndSort([1, 3, 4, 5], [2, 6, 7, 8, 9]);
+    expect(value).to.eql([1, 2, 3, 4, 5, 6, 7, 8, 9]);
+  });
+
   describe('Flatten', () => {
     it('Should flatten array', () =>
       expect(yo.flatten([[1, 2, 3], [4, 5, 6]])).to.eql([1, 2, 3, 4, 5, 6]));
@@ -81,6 +94,12 @@ describe('Array', () => {
     it('Should find the very last item using lastOfTheLastOfTheLast', () => {
       const value = yo.lastOfTheLastOfTheLast([1, 2, [11, 22], [111, [1111, 2222]]]);
       expect(value).to.equal(2222);
+    });
+
+    it('Should find the largest sub array by sum', () => {
+      const value = yo.findLargestSubArrayBySum([[1, 2, 3, 4, 5000], [1, 2], [2000, 2]]);
+      expect(value).to.be.an('object');
+      expect(value).to.eql({index: 0, item: [1, 2, 3, 4, 5000], value: 5010});
     });
   });
 });
