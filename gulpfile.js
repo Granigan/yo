@@ -5,6 +5,7 @@ const eslint = require('gulp-eslint');
 const babel = require('gulp-babel');
 const mocha = require('gulp-mocha');
 const watch = require('gulp-watch');
+const todo = require('gulp-todo');
 
 const lint = (files) =>
   gulp.src(files)
@@ -37,8 +38,13 @@ gulp.task('test', ['lint-spec', 'babel'], () =>
     .on('error', notify.onError('Error: <%= error.message %>'))
 );
 
-gulp.task('default', ['lint-gulp', 'test'], () => {
-  // watch('src/*.js', () => gulp.run(['babel']));
+gulp.task('todo', () =>
+  gulp.src(['src/*.js', 'spec/**/*.js'])
+    .pipe(todo())
+    .pipe(gulp.dest('./'))
+);
+
+gulp.task('default', ['lint-gulp', 'test', 'todo'], () => {
   watch('*.js', () => gulp.run(['lint-gulp']));
-  watch(['src/*.js', 'spec/**/*.js'], () => gulp.run(['test']));
+  watch(['src/*.js', 'spec/**/*.js'], () => gulp.run(['test', 'todo']));
 });

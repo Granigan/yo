@@ -31,6 +31,50 @@ describe('Misc functions', () => {
     expect(nooped).to.eql(undefined);
   });
 
+  it('callfunctor should work', () => {
+    const add = (val) => val + 1;
+    const funked = yo.callFunctor(1, add);
+    expect(funked).to.eql(2);
+  });
+
+  it('Should return now date object', () => {
+    const now = yo.now();
+    expect(now).to.be.an('object');
+    expect(now).to.be.a(Date);
+  });
+
+  it('Should always return true', () => {
+    expect(yo.always()).to.eql(true);
+  });
+
+  it('Should never return true', () => {
+    expect(yo.never()).to.eql(false);
+  });
+
+  it('Should add new method with mixin', () => {
+    const currentMethodCount = yo.listMethods().length;
+    yo.mixin({hello: () => 1});
+    const newMethodCount = yo.listMethods().length;
+    expect(yo.hello).to.be.an('function');
+    expect(currentMethodCount).not.to.equal(newMethodCount);
+  });
+
+  it('Should have proper functionality on every', () => {
+    expect(yo.every([1, 2, true, 'string'])).to.equal(true);
+    expect(yo.every([1, 2, true, 'string'], yo.isTruthy)).to.equal(true);
+    expect(yo.every([1, 2, true, 'string', false])).to.equal(false);
+    expect(yo.every([1, 2, true, 'string', false], yo.isTruthy)).to.equal(false);
+  });
+
+  it('Should have proper functionality on some', () => {
+    expect(yo.some([1, 2, true, 'string'])).to.equal(true);
+    expect(yo.some([1, 2, true, 'string'], yo.always)).to.equal(true);
+    expect(yo.some([1, 2, true, 'string', false])).to.equal(true);
+    expect(yo.some([1, 2, true, 'string', false], yo.always)).to.equal(true);
+    expect(yo.some([false, null, undefined])).to.equal(false);
+    expect(yo.some([false, null, undefined], yo.isTruthy)).to.equal(false);
+  });
+
   describe('Arguments', () => {
     it('Should passthru value', () => {
       expect(yo.passthru({test: true})).to.eql({test: true});

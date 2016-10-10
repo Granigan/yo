@@ -38,6 +38,8 @@
         this.extend({}, obj, {[key]: value})
       , {});
 
+      this.always = () => true;
+      this.never = () => false;
       this.callFunctor = (val, fn) => fn(val);
       this.negate = (fn) => (...args) => !fn(...args);
       this.flip = (fn) => (...args) => fn(this.reverse(args));
@@ -54,6 +56,7 @@
       const mean = (...args) => divide(sum(...args), args.length);
       const factorial = (n) => reduce(this.rest(times(n + 1)), multiply, 1);
 
+      // TODO: add test
       const debounce = (fn, delay = 0) => {
         let timeout;
 
@@ -69,6 +72,7 @@
         };
       };
 
+      // TODO: add test
       const throttle = (fn, delay = 0) => {
         let wait = false;
 
@@ -282,11 +286,16 @@
       , []);
     }
 
+    // TODO: add test
     error(str) {
       throw new Error(str);
     }
 
+    // TODO: implement native every and fix functionality on fallback to match native
     every(arr, callback) {
+      // if (this.isFunction(arr.every)) {
+      //   return arr.every(callback);
+      // }
       return this.reduce(arr, (bool, item) => {
         let result = bool;
 
@@ -297,14 +306,18 @@
           result = item();
         }
 
-        if (!item) {
+        if (this.isFalsey(item)) {
           result = false;
         }
         return result;
       }, true);
     }
 
+    // TODO: implement native some and fix functionality on fallback to match native
     some(arr, callback) {
+      // if (this.isFunction(arr.some)) {
+      //   return arr.some(callback);
+      // }
       return this.reduce(arr, (bool, item) => {
         let result = bool;
 
@@ -322,6 +335,7 @@
       }, false);
     }
 
+    // TODO: add test
     random(min = 0, max = 1) {
       if (!this.isNumber(min) || !this.isNumber(max)) {
         this.error('No numbers provided');
@@ -374,8 +388,7 @@
 
     keys(obj) {
       if (obj === this) {
-        const prototypeKeys =
-          Object.getOwnPropertyNames(Object.getPrototypeOf(obj));
+        const prototypeKeys = Object.getOwnPropertyNames(Object.getPrototypeOf(obj));
         const ownPropertyNames = Object.getOwnPropertyNames(obj);
         const keys = this.merge(ownPropertyNames, prototypeKeys);
         return this.filter(keys, (key) => key !== 'constructor');
@@ -422,6 +435,7 @@
       }, []);
     }
 
+    // TODO: add test
     each(arr, callback) {
       if (this.isFunction(arr.forEach)) {
         return arr.forEach(callback);
@@ -434,6 +448,7 @@
       return arr;
     }
 
+    // TODO: add test
     forIn(obj, fn) {
       for (const key in obj) {
         fn(obj[key], key);
@@ -481,6 +496,7 @@
       return word === this.reverse(word);
     }
 
+    // TODO: add test
     fibonacci(n = 0) {
       if (n < 1) {
         return 0;
@@ -493,6 +509,7 @@
       return this.fibonacci(n - 1) + this.fibonacci(n - 2);
     }
 
+    // TODO: add test
     fizzbuzz() {
       return this.chain(this.range(101))
         .rest()
@@ -547,6 +564,7 @@
       ];
     }
 
+    // TODO: add test
     find(arr, item, useBinarySearch) {
       let result;
 
@@ -570,10 +588,12 @@
       return result;
     }
 
+    // TODO: add test
     findKey(obj, item) {
       return obj[item] || false;
     }
 
+    // TODO: add test
     pick(arr, query) {
       return this.reduce(arr, (value, item) => {
         for (const prop in query) {
@@ -586,6 +606,7 @@
       }, []);
     }
 
+    // TODO: add test
     binarySearch(arr, value) {
       const search = (start, end) => {
         if (start > end) {
@@ -615,6 +636,7 @@
       return search(0, this.size(arr) - 1);
     }
 
+    // TODO: add test
     size(val) {
       if (this.isString(val) || this.isArray(val)) {
         return val.length;
@@ -624,13 +646,19 @@
       return this.error('this.size only accepts: arrays, strings, objects');
     }
 
+    // TODO: add test
     length(val) {
       return this.size(val);
     }
 
+    // TODO: add test
     wordCount(str) {
-      const words = this.isFunction(str) ? str() : str;
-      return this.size(words.split(' '));
+      return this.size(this.words(str));
+    }
+
+    // TODO: add test
+    words(str) {
+      return (this.isFunction(str) ? str() : str).split(' ');
     }
 
     validateMethodNames(func) {
@@ -646,6 +674,7 @@
       return this.size(invalidMethodNames) ? invalidMethodNames : true;
     }
 
+    // TODO: add test
     reverse(val) {
       if (this.isString(val)) {
         return this.reverse(val.split('')).join('');
@@ -675,14 +704,17 @@
       return this.slice(arr, 0, arr.length - 1);
     }
 
+    // TODO: add test
     head(arr) {
       return this.first(arr);
     }
 
+    // TODO: add test
     tail(arr) {
       return this.rest(arr);
     }
 
+    // TODO: add test
     slice(arr, start, end) {
       let noEndInSight = end;
       if (this.isUndefined(end)) {
@@ -692,10 +724,12 @@
       return nativeSlice.call(arr, start, noEndInSight);
     }
 
+    // TODO: add test
     drop(arr, n) {
       return arr.slice(n);
     }
 
+    // TODO: add test
     dropRight(arr, n) {
       if (n > arr.length - 1) {
         return [];
@@ -703,10 +737,12 @@
       return this.slize(arr, 0, arr.length - n);
     }
 
+    // TODO: add test
     nth(arr, n) {
       return arr[n];
     }
 
+    // TODO: add test
     nthArg(n) {
       return (...args) => this.nth(args, n);
     }
@@ -731,26 +767,32 @@
       return Math.max(...args);
     }
 
+    // TODO: add test
     gt(a, b) {
       return a > b;
     }
 
+    // TODO: add test
     gte(a, b) {
       return a >= b;
     }
 
+    // TODO: add test
     lt(a, b) {
       return a < b;
     }
 
+    // TODO: add test
     lte(a, b) {
       return a <= b;
     }
 
+    // TODO: add test
     indexOf(arr, value, fromIndex) {
       return (fromIndex ? this.slice(arr, fromIndex) : arr).indexOf(value);
     }
 
+    // TODO: add test
     filter(arr, callback) {
       if (this.isUndefined(arr)) {
         return [];
@@ -768,6 +810,7 @@
       }, []);
     }
 
+    // TODO: add test
     reject(arr, callback) {
       if (this.isUndefined(arr)) {
         return [];
@@ -796,6 +839,7 @@
       return lastItem;
     }
 
+    // TODO: add test
     chain(data) {
       let result = data;
       return {
@@ -855,6 +899,7 @@
       };
     }
 
+    // TODO: add test
     lazyChain(data) {
       let result = data;
       const actions = [];

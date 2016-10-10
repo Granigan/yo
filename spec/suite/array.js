@@ -26,6 +26,11 @@ describe('Array', () => {
     expect(yo.last([1, 2])).to.equal(2);
   });
 
+  it('Should return an array with range and times', () => {
+    expect(yo.range(3)).to.eql([0, 1, 2]);
+    expect(yo.times(3)).to.eql([0, 1, 2]);
+  });
+
   it('Should return initial items, all but the last', () => {
     expect(yo.initial([1, 2, 3, 4])).to.eql([1, 2, 3]);
   });
