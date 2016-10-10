@@ -3,8 +3,25 @@
 
   class Yo {
     constructor() {
+      const reduce = (arr, callback, initialValue) => {
+        let result;
+        if (this.isUndefined(arr)) {
+          this.error('No array given');
+        }
+
+        if (this.isFunction(arr.reduce)) {
+          return arr.reduce(callback, initialValue);
+        }
+
+        this.each(arr, (value) => {
+          result = callback(initialValue, value, arr);
+        });
+
+        return result;
+      };
+
       const privatePipe = (funcs, args) =>
-        this.reduce(this.rest(funcs), this.callFunctor, this.first(funcs)(...args));
+        reduce(this.rest(funcs), this.callFunctor, this.first(funcs)(...args));
 
       this.uppercase = (str) => str.toUpperCase();
       this.lowercase = (str) => str.toLowerCase();
@@ -17,10 +34,9 @@
       this.pipeRight = (...funcs) =>
         (...args) => privatePipe(this.reverse(funcs), args);
 
-      this.arrayToObject = (arr, value = true) =>
-        this.reduce(arr, (obj, key) =>
-          this.extend({}, obj, {[key]: value})
-        , {});
+      this.arrayToObject = (arr, value = true) => reduce(arr, (obj, key) =>
+        this.extend({}, obj, {[key]: value})
+      , {});
 
       this.callFunctor = (val, fn) => fn(val);
       this.negate = (fn) => (...args) => !fn(...args);
@@ -29,13 +45,14 @@
       this.passthru = (arg) => arg;
       this.now = () => new Date();
 
+      const times = this.range;
       const add = (a, b) => a + b;
       const subtract = (a, b) => a - b;
       const multiply = (a, b) => a * b;
       const divide = (a, b) => a / b;
-      const sum = (...args) => this.reduce(this.flatten(args), add, 0);
+      const sum = (...args) => reduce(this.flatten(args), add, 0);
       const mean = (...args) => divide(sum(...args), args.length);
-      const factorial = (n) => this.reduce(this.rest(this.times(n + 1)), multiply, 1);
+      const factorial = (n) => reduce(this.rest(times(n + 1)), multiply, 1);
 
       const debounce = (fn, delay = 0) => {
         let timeout;
@@ -80,7 +97,7 @@
 
       const chunk = (arr, size) => {
         const chunks = Math.ceil(arr.length / size);
-        return this.map(this.times(chunks), (i) =>
+        return this.map(times(chunks), (i) =>
           this.slice(arr, (i * size), (i * size + size)));
       };
 
@@ -96,7 +113,7 @@
       };
 
       const findPairsBySum = (arr, targetValue) =>
-        this.reduce(arr, (initial, value, key) => {
+        reduce(arr, (initial, value, key) => {
           const filtered = this.filter(this.drop(arr, key), (v) =>
             value + v === targetValue
           );
@@ -108,13 +125,45 @@
           return initial;
         }, []);
 
+      const findDuplicates = (arr, binarySearch) =>
+        reduce(arr, (initial, value, key) => {
+          const filtered = this.filter(this.drop(arr, key + 1), (v) =>
+            this.isEqual(value, v)
+          );
+
+          if (this.size(filtered) && !this.find(initial, value, binarySearch)) {
+            initial.push(filtered[0]);
+          }
+
+          return initial;
+        }, []);
+
+      const skipDuplicates = (arr, binarySearch) => {
+        const duplicates = this.findDuplicates(arr);
+
+        return reduce(arr, (initial, value) => {
+          const inDuplicates = this.find(duplicates, value, binarySearch);
+          if (inDuplicates && !this.find(initial, value, binarySearch)) {
+            initial.push(value);
+          }
+
+          if (!inDuplicates) {
+            initial.push(value);
+          }
+
+          return initial;
+        }, []);
+      };
+
       this.mixin({
+        reduce,
         noop: () => {},
-        sum,
+        times,
         add,
         subtract,
         multiply,
         divide,
+        sum,
         mean,
         factorial,
         debounce,
@@ -129,7 +178,9 @@
         mergeAndSort,
         duplicate,
         findLargestSubArrayBySum,
-        findPairsBySum
+        findPairsBySum,
+        findDuplicates,
+        skipDuplicates
       });
     }
 
@@ -156,7 +207,10 @@
       return typeof val === 'string';
     }
     isObject(val) {
-      return !this.isNull(val) && typeof val === 'object' && val.constructor !== Array;
+      return !this.isNull(val) &&
+        typeof val === 'object' &&
+        val instanceof Object &&
+        val.constructor !== Array;
     }
     isFunction(val) {
       return typeof val === 'function';
@@ -197,6 +251,14 @@
       if (this.isObject(a) && this.isObject(b)) {
         if (this.size(a) !== this.size(b)) {
           return false;
+        }
+
+        // this doesn't have that great support
+        // TODO: fallback for object comparison
+        if (this.isFunction(Object.is)) {
+          if (!Object.is(a, b)) {
+            return false;
+          }
         }
 
         const aKeys = this.keys(a);
@@ -312,7 +374,8 @@
 
     keys(obj) {
       if (obj === this) {
-        const prototypeKeys = Object.getOwnPropertyNames(Object.getPrototypeOf(obj));
+        const prototypeKeys =
+          Object.getOwnPropertyNames(Object.getPrototypeOf(obj));
         const ownPropertyNames = Object.getOwnPropertyNames(obj);
         const keys = this.merge(ownPropertyNames, prototypeKeys);
         return this.filter(keys, (key) => key !== 'constructor');
@@ -329,10 +392,6 @@
         arr.push(i);
       }
       return arr;
-    }
-
-    times(n) {
-      return this.range(n);
     }
 
     curry(fn) {
@@ -462,25 +521,10 @@
       /* eslint-enable */
     }
 
-    reduce(arr, callback, initialValue) {
-      let result;
-      if (this.isUndefined(arr)) {
-        this.error('No array given');
-      }
-
-      if (this.isFunction(arr.reduce)) {
-        return arr.reduce(callback, initialValue);
-      }
-
-      this.each(arr, (value) => {
-        result = callback(initialValue, value, arr);
-      });
-
-      return result;
-    }
-
     listMethods(func) {
-      return this.filter(this.keys(func || this), (method) => !this.isFunction(method));
+      return this.filter(this.keys(func || this), (method) =>
+        this.negate(this.isFunction)(method)
+      );
     }
 
     reservedWords() {
@@ -511,7 +555,9 @@
       }
 
       if (this.isFunction(arr.find)) {
-        return arr.find(this.isFunction(item) ? item : (value) => value === item);
+        return arr.find(this.isFunction(item) ? item : (value) =>
+          value === item
+        );
       }
 
       for (let i = arr.length - 1; i >= 0; i--) {
@@ -883,7 +929,8 @@
         const meowOrPurr = this.random() ? 'meow' : 'purrr';
         const color = this.random() ? greenOrRed : orangeOrBlue;
         const meow = () => meowOrPurr;
-        const allTheMeows = this.map(this.times(this.random(1, this.random(2, 4))), meow).join(' ');
+        const randomTimes = this.random(1, this.random(2, 4));
+        const allTheMeows = this.map(this.times(randomTimes), meow).join(' ');
         console.log(`%c${allTheMeows}`, `color: ${color}`);
       });
     }
@@ -926,7 +973,11 @@
         window[name] = func;
       }
 
-      if (typeof define !== 'undefined' && typeof define === 'function' && define.amd) {
+      if (
+          typeof define !== 'undefined' &&
+          typeof define === 'function' &&
+          define.amd
+        ) {
         define([name], func);
       }
     }

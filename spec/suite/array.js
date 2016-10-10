@@ -57,6 +57,11 @@ describe('Array', () => {
     expect(value).to.eql([1, 2, 3, 4, 5, 6, 7, 8, 9]);
   });
 
+  it('Should skip duplicates', () => {
+    const value = yo.skipDuplicates([2, 3, 4, 3, 10, 10]);
+    expect(value).to.eql([2, 3, 4, 10]);
+  });
+
   describe('Flatten', () => {
     it('Should flatten array', () =>
       expect(yo.flatten([[1, 2, 3], [4, 5, 6]])).to.eql([1, 2, 3, 4, 5, 6]));
@@ -106,6 +111,12 @@ describe('Array', () => {
       const value = yo.findPairsBySum([10, 5, 6, 7, 2, 8, 1, 9, 14], 15);
       expect(value).to.be.an('array');
       expect(value).to.eql([[10, 5], [6, 9], [7, 8], [1, 14]]);
+    });
+
+    it('Should find duplicates', () => {
+      const value = yo.findDuplicates([2, 3, 4, 3, 10, 10]);
+      expect(value).to.be.an('array');
+      expect(value).to.eql([3, 10]);
     });
   });
 });

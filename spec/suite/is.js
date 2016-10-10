@@ -3,6 +3,8 @@ const expect = require('expect.js');
 
 const noValue = undefined;
 const hasValue = '123';
+const emptyObject = {};
+const simpleObject = {a: 1};
 
 describe('Is functions', () => {
   it('isPalindrome otto', () => expect(yo.isPalindrome('otto')).to.equal(true));
@@ -33,8 +35,9 @@ describe('Is functions', () => {
   it('isTruthy {}', () => expect(yo.isTruthy({})).to.equal(true));
   it('isTruthy "string"', () => expect(yo.isTruthy('string')).to.equal(true));
   it('isEqual integer', () => expect(yo.isEqual(1, 1)).to.equal(true));
-  it('isEqual object', () => expect(yo.isEqual({a: 1}, {a: 1})).to.equal(true));
   it('isEqual array', () => expect(yo.isEqual([1, 2], [1, 2])).to.equal(true));
+  it('isEqual object', () => expect(yo.isEqual(simpleObject, simpleObject)).to.equal(true));
+  it('isEqual object', () => expect(yo.isEqual(emptyObject, emptyObject)).to.equal(true));
 
   it('not isNull', () => expect(yo.isNull('null')).to.equal(false));
   it('not isPalindrome', () => expect(yo.isPalindrome('not palindrome')).to.equal(false));
@@ -55,8 +58,11 @@ describe('Is functions', () => {
   it('not isFinite', () => expect(yo.isFinite(Infinity)).to.equal(false));
   it('not isPositive', () => expect(yo.isPositive(-1)).to.equal(false));
   it('not isNegative', () => expect(yo.isNegative(1)).to.equal(false));
+  it('not isEqual NaN', () => expect(yo.isEqual(NaN, NaN)).to.equal(false));
   it('not isEqual integer', () => expect(yo.isEqual(1, 2)).to.equal(false));
   it('not isEqual object', () => expect(yo.isEqual({a: 1}, {a: 2})).to.equal(false));
+  it('not isEqual object', () => expect(yo.isEqual({a: 1}, {a: 1})).to.equal(false));
+  it('not isEqual object', () => expect(yo.isEqual({}, {})).to.equal(false));
   it('not isEqual array', () => expect(yo.isEqual([1, 1], [2, 2])).to.equal(false));
   it('not isTruthy false', () => expect(yo.isTruthy(false)).to.equal(false));
   it('not isTruthy 0', () => expect(yo.isTruthy(0)).to.equal(false));
