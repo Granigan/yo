@@ -5,6 +5,23 @@ describe('Array', () => {
   it('Should be array', () => expect(yo.isArray([])).to.equal(true));
   it('Should be empty array', () => expect(yo.isEmpty([])).to.equal(true));
 
+  it('Should get object size', () => {
+    expect(yo.size([1, 2])).to.equal(2);
+    expect(yo.length([1, 2])).to.equal(2);
+  });
+
+  it('Should loop using each', () => {
+    const results = [];
+    const callback = () => results.push(true);
+
+    yo.each([1, 2], callback);
+    expect(results).to.eql([true, true]);
+  });
+
+  it('Should reverse array', () => {
+    expect(yo.reverse([1, 2, 3])).to.eql([3, 2, 1]);
+  });
+
   it('Should convert array to object', () =>
     expect(yo.arrayToObject(['abc', 123])).to.eql({123: true, abc: true})
   );
@@ -24,6 +41,77 @@ describe('Array', () => {
 
   it('Should return last item', () => {
     expect(yo.last([1, 2])).to.equal(2);
+  });
+
+  it('Should return head', () => {
+    expect(yo.head([1, 2])).to.equal(1);
+  });
+
+  it('Should return tail', () => {
+    expect(yo.tail([1, 2, 3])).to.eql([2, 3]);
+  });
+
+  it('Should return rest', () => {
+    expect(yo.rest([1, 2, 3])).to.eql([2, 3]);
+  });
+
+  it('Should slice array', () => {
+    const value = [1, 2, 3];
+    expect(yo.slice(value, 1, 3)).to.eql([2, 3]);
+    expect(value).not.to.eql([2, 3]);
+
+    expect(yo.slice([1, 2, 3], 0)).to.eql([1, 2, 3]);
+    expect(yo.slice([1, 2, 3], 1)).to.eql([2, 3]);
+    expect(yo.slice([1, 2, 3], 2)).to.eql([3]);
+    expect(yo.slice([1, 2, 3], 0, 1)).to.eql([1]);
+    expect(yo.slice([1, 2, 3], 0, 2)).to.eql([1, 2]);
+    expect(yo.slice([1, 2, 3], 1, 3)).to.eql([2, 3]);
+  });
+
+  it('Should drop slice from array', () => {
+    const value = [1, 2, 3];
+    expect(yo.drop(value, 1)).to.eql([2, 3]);
+    expect(value).not.to.eql([2, 3]);
+
+    expect(yo.drop([1, 2, 3], 0)).to.eql([1, 2, 3]);
+    expect(yo.drop([1, 2, 3], 1)).to.eql([2, 3]);
+    expect(yo.drop([1, 2, 3], 2)).to.eql([3]);
+  });
+
+  it('Should drop right slice from array', () => {
+    const value = [1, 2, 3];
+    expect(yo.dropRight(value, 1)).to.eql([1, 2]);
+    expect(value).not.to.eql([1, 2]);
+
+    expect(yo.dropRight([1, 2, 3], 0)).to.eql([1, 2, 3]);
+    expect(yo.dropRight([1, 2, 3], 1)).to.eql([1, 2]);
+    expect(yo.dropRight([1, 2, 3], 2)).to.eql([1]);
+  });
+
+  it('Should return nth item from array', () => {
+    expect(yo.nth([1, 2, 3], 0)).to.equal(1);
+    expect(yo.nth([1, 2, 3], 1)).to.equal(2);
+    expect(yo.nth([1, 2, 3], 2)).to.equal(3);
+    expect(yo.nth([1, 2, 3], 3)).to.equal(undefined);
+  });
+
+  it('Should return index of array', () => {
+    expect(yo.indexOf([1, 2, 3], 3)).to.equal(2);
+    expect(yo.indexOf([1, 2, 3], 4)).to.equal(-1);
+    expect(yo.indexOf([1, 2, 3], 2, 1)).to.equal(0);
+    expect(yo.indexOf([1, 2, 3], 3, 1)).to.equal(1);
+  });
+
+  it('Should be able to filter an array', () => {
+    const values = [1, 2, 3, 3, 4, 2];
+    expect(yo.filter(values, (i) => i === 3)).to.eql([3, 3]);
+    expect(yo.filter(values, (i) => i === 100)).to.eql([]);
+  });
+
+  it('Should be able to reject items from array', () => {
+    const values = [1, 2, 3, 3, 4, 2];
+    expect(yo.reject(values, (i) => i === 3)).to.eql([1, 2, 4, 2]);
+    expect(yo.reject(values, (i) => i === 100)).to.eql(values);
   });
 
   it('Should return an array with range and times', () => {
@@ -95,6 +183,36 @@ describe('Array', () => {
   });
 
   describe('Find', () => {
+    it('Should find using find', () => {
+      const value = yo.find([1, 2, 3, 4], 3);
+      expect(value).to.be.an('number');
+      expect(value).to.eql(3);
+    });
+
+    it('Should find using find with binarysearch', () => {
+      const value = yo.find([1, 2, 3, 4], 3, true);
+      expect(value).to.be.an('number');
+      expect(value).to.eql(3);
+    });
+
+    it('Should find using find with callback', () => {
+      const value = yo.find([1, 2, 3, 4], (i) => i === 3);
+      expect(value).to.be.an('number');
+      expect(value).to.eql(3);
+    });
+
+    it('Should not find using find with callback and binarysearch', () => {
+      const value = yo.find([1, 2, 3, 4], (i) => i === 3, true);
+      expect(value).to.be.an('undefined');
+      expect(value).to.equal(undefined);
+    });
+
+    it('Should find using binarysearch', () => {
+      const value = yo.binarySearch([1, 2, 3, 4], 3);
+      expect(value).to.be.an('number');
+      expect(value).to.eql(2);
+    });
+
     it('Should find using where', () => {
       const value = yo.where([{a: 1}, {b: 2}, {a: 1}], {a: 1});
       expect(value).to.be.an('array');

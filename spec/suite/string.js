@@ -25,4 +25,21 @@ describe('Strings', () => {
     expect(yo.isPalindrome('Eva, can I stab bats in a cave?')).to.equal(true);
     expect(yo.isPalindrome('This is not a palindrome')).to.equal(false);
   });
+
+  it('Should get string length', () => {
+    expect(yo.size('hello world')).to.equal(11);
+    expect(yo.length('hello world')).to.equal(11);
+  });
+
+  it('Should get word count', () => {
+    expect(yo.wordCount('hello world')).to.equal(2);
+  });
+
+  it('Should get words', () => {
+    expect(yo.words('hello world')).to.eql(['hello', 'world']);
+  });
+
+  it('Should reverse string', () => {
+    expect(yo.reverse('hello world')).to.equal('dlrow olleh');
+  });
 });

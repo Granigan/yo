@@ -273,7 +273,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
       };
 
       var skipDuplicates = function skipDuplicates(arr, binarySearch) {
-        var duplicates = _this.findDuplicates(arr);
+        var duplicates = _this.findDuplicates(arr, binarySearch);
 
         return reduce(arr, function (initial, value) {
           var inDuplicates = _this.find(duplicates, value, binarySearch);
@@ -456,9 +456,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
           return _this3.merge(a, _this3.isArray(b) ? _this3.flatten(b) : b);
         }, []);
       }
-
-      // TODO: add test
-
     }, {
       key: 'error',
       value: function error(str) {
@@ -518,9 +515,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
           return result;
         }, false);
       }
-
-      // TODO: add test
-
     }, {
       key: 'random',
       value: function random() {
@@ -642,9 +636,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
           return initial;
         }, []);
       }
-
-      // TODO: add test
-
     }, {
       key: 'each',
       value: function each(arr, callback) {
@@ -658,9 +649,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
         return arr;
       }
-
-      // TODO: add test
-
     }, {
       key: 'forIn',
       value: function forIn(obj, fn) {
@@ -718,9 +706,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
         return word === this.reverse(word);
       }
-
-      // TODO: add test
-
     }, {
       key: 'fibonacci',
       value: function fibonacci() {
@@ -736,9 +721,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
         return this.fibonacci(n - 1) + this.fibonacci(n - 2);
       }
-
-      // TODO: add test
-
     }, {
       key: 'fizzbuzz',
       value: function fizzbuzz() {
@@ -781,16 +763,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
       value: function reservedWords() {
         return ['abstract', 'else', 'instanceof', 'super', 'boolean', 'enum', 'int', 'switch', 'break', 'export', 'interface', 'synchronized', 'byte', 'extends', 'let', 'this', 'case', 'false', 'long', 'throw', 'catch', 'final', 'native', 'throws', 'char', 'finally', 'new', 'transient', 'class', 'float', 'null', 'true', 'const', 'for', 'package', 'try', 'continue', 'function', 'private', 'typeof', 'debugger', 'goto', 'protected', 'var', 'default', 'if', 'public', 'void', 'delete', 'implements', 'return', 'volatile', 'do', 'import', 'short', 'while', 'double', 'in', 'static', 'with'];
       }
-
-      // TODO: add test
-
     }, {
       key: 'find',
       value: function find(arr, item, useBinarySearch) {
         var result = void 0;
 
         if (useBinarySearch) {
-          return this.binarySearch(arr, item);
+          return arr[this.binarySearch(arr, item)];
         }
 
         if (this.isFunction(arr.find)) {
@@ -808,17 +787,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
         return result;
       }
-
-      // TODO: add test
-
     }, {
       key: 'findKey',
       value: function findKey(obj, item) {
         return obj[item] || false;
       }
-
-      // TODO: add test
-
     }, {
       key: 'pick',
       value: function pick(arr, query) {
@@ -834,9 +807,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
           return value;
         }, []);
       }
-
-      // TODO: add test
-
     }, {
       key: 'binarySearch',
       value: function binarySearch(arr, value) {
@@ -867,9 +837,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
         return search(0, this.size(arr) - 1);
       }
-
-      // TODO: add test
-
     }, {
       key: 'size',
       value: function size(val) {
@@ -880,25 +847,16 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         }
         return this.error('this.size only accepts: arrays, strings, objects');
       }
-
-      // TODO: add test
-
     }, {
       key: 'length',
       value: function length(val) {
         return this.size(val);
       }
-
-      // TODO: add test
-
     }, {
       key: 'wordCount',
       value: function wordCount(str) {
         return this.size(this.words(str));
       }
-
-      // TODO: add test
-
     }, {
       key: 'words',
       value: function words(str) {
@@ -920,9 +878,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
         return this.size(invalidMethodNames) ? invalidMethodNames : true;
       }
-
-      // TODO: add test
-
     }, {
       key: 'reverse',
       value: function reverse(val) {
@@ -957,25 +912,16 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
       value: function initial(arr) {
         return this.slice(arr, 0, arr.length - 1);
       }
-
-      // TODO: add test
-
     }, {
       key: 'head',
       value: function head(arr) {
         return this.first(arr);
       }
-
-      // TODO: add test
-
     }, {
       key: 'tail',
       value: function tail(arr) {
         return this.rest(arr);
       }
-
-      // TODO: add test
-
     }, {
       key: 'slice',
       value: function slice(arr, start, end) {
@@ -986,36 +932,24 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
         return nativeSlice.call(arr, start, noEndInSight);
       }
-
-      // TODO: add test
-
     }, {
       key: 'drop',
       value: function drop(arr, n) {
-        return arr.slice(n);
+        return this.slice(arr, n);
       }
-
-      // TODO: add test
-
     }, {
       key: 'dropRight',
       value: function dropRight(arr, n) {
         if (n > arr.length - 1) {
           return [];
         }
-        return this.slize(arr, 0, arr.length - n);
+        return this.slice(arr, 0, arr.length - n);
       }
-
-      // TODO: add test
-
     }, {
       key: 'nth',
       value: function nth(arr, n) {
         return arr[n];
       }
-
-      // TODO: add test
-
     }, {
       key: 'nthArg',
       value: function nthArg(n) {
@@ -1062,49 +996,31 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
       value: function max() {
         return Math.max.apply(Math, arguments);
       }
-
-      // TODO: add test
-
     }, {
       key: 'gt',
       value: function gt(a, b) {
         return a > b;
       }
-
-      // TODO: add test
-
     }, {
       key: 'gte',
       value: function gte(a, b) {
         return a >= b;
       }
-
-      // TODO: add test
-
     }, {
       key: 'lt',
       value: function lt(a, b) {
         return a < b;
       }
-
-      // TODO: add test
-
     }, {
       key: 'lte',
       value: function lte(a, b) {
         return a <= b;
       }
-
-      // TODO: add test
-
     }, {
       key: 'indexOf',
       value: function indexOf(arr, value, fromIndex) {
         return (fromIndex ? this.slice(arr, fromIndex) : arr).indexOf(value);
       }
-
-      // TODO: add test
-
     }, {
       key: 'filter',
       value: function filter(arr, callback) {
@@ -1123,27 +1039,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
           return value;
         }, []);
       }
-
-      // TODO: add test
-
     }, {
       key: 'reject',
       value: function reject(arr, callback) {
-        if (this.isUndefined(arr)) {
-          return [];
-        }
-
-        // TODO: This is wrong?
-        if (this.isFunction(arr.filter)) {
-          return arr.filter(callback);
-        }
-
-        return this.reduce(arr, function (value, item) {
-          if (!callback(item)) {
-            value.push(item);
-          }
-          return value;
-        }, []);
+        return this.filter(arr, function (item) {
+          return !callback(item);
+        });
       }
     }, {
       key: 'lastOfTheLastOfTheLast',
@@ -1165,63 +1066,65 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         var _this11 = this;
 
         var result = data;
-        return {
+        var methods = {
           filter: function filter(callback) {
             result = _this11.filter(result, callback);
-            return _this11;
+            return methods;
           },
           reject: function reject(callback) {
             result = _this11.reject(result, callback);
-            return _this11;
+            return methods;
           },
           map: function map(callback) {
             result = _this11.map(result, callback);
-            return _this11;
+            return methods;
           },
           reduce: function reduce(callback, initialValue) {
             result = _this11.reduce(result, callback, initialValue);
-            return _this11;
+            return methods;
           },
           find: function find(callback, useBinarySearch) {
             result = _this11.find(result, callback, useBinarySearch);
-            return _this11;
+            return methods;
           },
           findKey: function findKey(callback) {
             result = _this11.findKey(result, callback);
-            return _this11;
+            return methods;
           },
           pick: function pick(callback) {
             result = _this11.pick(result, callback);
-            return _this11;
+            return methods;
           },
           flatten: function flatten() {
             result = _this11.flatten(result);
-            return _this11;
+            return methods;
           },
           first: function first() {
             result = _this11.first(result);
-            return _this11;
+            return methods;
           },
           reverse: function reverse() {
             result = _this11.reverse(result);
-            return _this11;
+            return methods;
           },
           rest: function rest() {
             result = _this11.rest(result);
-            return _this11;
+            return methods;
           },
           drop: function drop(n) {
             result = _this11.drop(result, n);
-            return _this11;
+            return methods;
           },
           dropRight: function dropRight(n) {
             result = _this11.dropRight(result, n);
-            return _this11;
+            return methods;
           },
           value: function value() {
             return result;
           }
         };
+
+        return methods;
       }
 
       // TODO: add test
@@ -1243,63 +1146,65 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
           return result;
         };
 
-        return {
+        var methods = {
           filter: function filter(callback) {
             actions.push({ action: 'filter', callback: callback });
-            return _this12;
+            return methods;
           },
           reject: function reject(callback) {
             actions.push({ action: 'reject', callback: callback });
-            return _this12;
+            return methods;
           },
           map: function map(callback) {
             actions.push({ action: 'map', callback: callback });
-            return _this12;
+            return methods;
           },
           reduce: function reduce(callback, initialValue) {
             actions.push({ action: 'reduce', callback: callback, attributes: initialValue });
-            return _this12;
+            return methods;
           },
           find: function find(callback, useBinarySearch) {
             actions.push({ action: 'find', callback: callback, attributes: useBinarySearch });
-            return _this12;
+            return methods;
           },
           findKey: function findKey(callback) {
             actions.push({ action: 'findKey', callback: callback });
-            return _this12;
+            return methods;
           },
           pick: function pick(callback) {
             actions.push({ action: 'pick', callback: callback });
-            return _this12;
+            return methods;
           },
           flatten: function flatten() {
             actions.push({ action: 'flatten' });
-            return _this12;
+            return methods;
           },
           first: function first() {
             actions.push({ action: 'first' });
-            return _this12;
+            return methods;
           },
           reverse: function reverse() {
             actions.push({ action: 'reverse' });
-            return _this12;
+            return methods;
           },
           rest: function rest() {
             actions.push({ action: 'rest' });
-            return _this12;
+            return methods;
           },
           drop: function drop(n) {
             actions.push({ action: 'drop', callback: n });
-            return _this12;
+            return methods;
           },
           dropRight: function dropRight(n) {
             actions.push({ action: 'dropRight', callback: n });
-            return _this12;
+            return methods;
           },
           value: function value() {
             return buildData();
           }
         };
+
+        return methods;
       }
     }, {
       key: 'kitten',

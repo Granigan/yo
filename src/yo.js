@@ -143,7 +143,7 @@
         }, []);
 
       const skipDuplicates = (arr, binarySearch) => {
-        const duplicates = this.findDuplicates(arr);
+        const duplicates = this.findDuplicates(arr, binarySearch);
 
         return reduce(arr, (initial, value) => {
           const inDuplicates = this.find(duplicates, value, binarySearch);
@@ -286,7 +286,6 @@
       , []);
     }
 
-    // TODO: add test
     error(str) {
       throw new Error(str);
     }
@@ -335,7 +334,6 @@
       }, false);
     }
 
-    // TODO: add test
     random(min = 0, max = 1) {
       if (!this.isNumber(min) || !this.isNumber(max)) {
         this.error('No numbers provided');
@@ -435,7 +433,6 @@
       }, []);
     }
 
-    // TODO: add test
     each(arr, callback) {
       if (this.isFunction(arr.forEach)) {
         return arr.forEach(callback);
@@ -448,7 +445,6 @@
       return arr;
     }
 
-    // TODO: add test
     forIn(obj, fn) {
       for (const key in obj) {
         fn(obj[key], key);
@@ -496,7 +492,6 @@
       return word === this.reverse(word);
     }
 
-    // TODO: add test
     fibonacci(n = 0) {
       if (n < 1) {
         return 0;
@@ -509,7 +504,6 @@
       return this.fibonacci(n - 1) + this.fibonacci(n - 2);
     }
 
-    // TODO: add test
     fizzbuzz() {
       return this.chain(this.range(101))
         .rest()
@@ -564,12 +558,11 @@
       ];
     }
 
-    // TODO: add test
     find(arr, item, useBinarySearch) {
       let result;
 
       if (useBinarySearch) {
-        return this.binarySearch(arr, item);
+        return arr[this.binarySearch(arr, item)];
       }
 
       if (this.isFunction(arr.find)) {
@@ -588,12 +581,10 @@
       return result;
     }
 
-    // TODO: add test
     findKey(obj, item) {
       return obj[item] || false;
     }
 
-    // TODO: add test
     pick(arr, query) {
       return this.reduce(arr, (value, item) => {
         for (const prop in query) {
@@ -606,7 +597,6 @@
       }, []);
     }
 
-    // TODO: add test
     binarySearch(arr, value) {
       const search = (start, end) => {
         if (start > end) {
@@ -636,7 +626,6 @@
       return search(0, this.size(arr) - 1);
     }
 
-    // TODO: add test
     size(val) {
       if (this.isString(val) || this.isArray(val)) {
         return val.length;
@@ -646,17 +635,14 @@
       return this.error('this.size only accepts: arrays, strings, objects');
     }
 
-    // TODO: add test
     length(val) {
       return this.size(val);
     }
 
-    // TODO: add test
     wordCount(str) {
       return this.size(this.words(str));
     }
 
-    // TODO: add test
     words(str) {
       return (this.isFunction(str) ? str() : str).split(' ');
     }
@@ -674,7 +660,6 @@
       return this.size(invalidMethodNames) ? invalidMethodNames : true;
     }
 
-    // TODO: add test
     reverse(val) {
       if (this.isString(val)) {
         return this.reverse(val.split('')).join('');
@@ -704,17 +689,14 @@
       return this.slice(arr, 0, arr.length - 1);
     }
 
-    // TODO: add test
     head(arr) {
       return this.first(arr);
     }
 
-    // TODO: add test
     tail(arr) {
       return this.rest(arr);
     }
 
-    // TODO: add test
     slice(arr, start, end) {
       let noEndInSight = end;
       if (this.isUndefined(end)) {
@@ -724,25 +706,21 @@
       return nativeSlice.call(arr, start, noEndInSight);
     }
 
-    // TODO: add test
     drop(arr, n) {
-      return arr.slice(n);
+      return this.slice(arr, n);
     }
 
-    // TODO: add test
     dropRight(arr, n) {
       if (n > arr.length - 1) {
         return [];
       }
-      return this.slize(arr, 0, arr.length - n);
+      return this.slice(arr, 0, arr.length - n);
     }
 
-    // TODO: add test
     nth(arr, n) {
       return arr[n];
     }
 
-    // TODO: add test
     nthArg(n) {
       return (...args) => this.nth(args, n);
     }
@@ -767,32 +745,26 @@
       return Math.max(...args);
     }
 
-    // TODO: add test
     gt(a, b) {
       return a > b;
     }
 
-    // TODO: add test
     gte(a, b) {
       return a >= b;
     }
 
-    // TODO: add test
     lt(a, b) {
       return a < b;
     }
 
-    // TODO: add test
     lte(a, b) {
       return a <= b;
     }
 
-    // TODO: add test
     indexOf(arr, value, fromIndex) {
       return (fromIndex ? this.slice(arr, fromIndex) : arr).indexOf(value);
     }
 
-    // TODO: add test
     filter(arr, callback) {
       if (this.isUndefined(arr)) {
         return [];
@@ -810,23 +782,8 @@
       }, []);
     }
 
-    // TODO: add test
     reject(arr, callback) {
-      if (this.isUndefined(arr)) {
-        return [];
-      }
-
-      // TODO: This is wrong?
-      if (this.isFunction(arr.filter)) {
-        return arr.filter(callback);
-      }
-
-      return this.reduce(arr, (value, item) => {
-        if (!callback(item)) {
-          value.push(item);
-        }
-        return value;
-      }, []);
+      return this.filter(arr, (item) => !callback(item));
     }
 
     lastOfTheLastOfTheLast(arr) {
@@ -842,61 +799,63 @@
     // TODO: add test
     chain(data) {
       let result = data;
-      return {
+      const methods = {
         filter: (callback) => {
           result = this.filter(result, callback);
-          return this;
+          return methods;
         },
         reject: (callback) => {
           result = this.reject(result, callback);
-          return this;
+          return methods;
         },
         map: (callback) => {
           result = this.map(result, callback);
-          return this;
+          return methods;
         },
         reduce: (callback, initialValue) => {
           result = this.reduce(result, callback, initialValue);
-          return this;
+          return methods;
         },
         find: (callback, useBinarySearch) => {
           result = this.find(result, callback, useBinarySearch);
-          return this;
+          return methods;
         },
         findKey: (callback) => {
           result = this.findKey(result, callback);
-          return this;
+          return methods;
         },
         pick: (callback) => {
           result = this.pick(result, callback);
-          return this;
+          return methods;
         },
         flatten: () => {
           result = this.flatten(result);
-          return this;
+          return methods;
         },
         first: () => {
           result = this.first(result);
-          return this;
+          return methods;
         },
         reverse: () => {
           result = this.reverse(result);
-          return this;
+          return methods;
         },
         rest: () => {
           result = this.rest(result);
-          return this;
+          return methods;
         },
         drop: (n) => {
           result = this.drop(result, n);
-          return this;
+          return methods;
         },
         dropRight: (n) => {
           result = this.dropRight(result, n);
-          return this;
+          return methods;
         },
         value: () => result
       };
+
+      return methods;
     }
 
     // TODO: add test
@@ -910,61 +869,63 @@
         return result;
       };
 
-      return {
+      const methods = {
         filter: (callback) => {
           actions.push({action: 'filter', callback});
-          return this;
+          return methods;
         },
         reject: (callback) => {
           actions.push({action: 'reject', callback});
-          return this;
+          return methods;
         },
         map: (callback) => {
           actions.push({action: 'map', callback});
-          return this;
+          return methods;
         },
         reduce: (callback, initialValue) => {
           actions.push({action: 'reduce', callback, attributes: initialValue});
-          return this;
+          return methods;
         },
         find: (callback, useBinarySearch) => {
           actions.push({action: 'find', callback, attributes: useBinarySearch});
-          return this;
+          return methods;
         },
         findKey: (callback) => {
           actions.push({action: 'findKey', callback});
-          return this;
+          return methods;
         },
         pick: (callback) => {
           actions.push({action: 'pick', callback});
-          return this;
+          return methods;
         },
         flatten: () => {
           actions.push({action: 'flatten'});
-          return this;
+          return methods;
         },
         first: () => {
           actions.push({action: 'first'});
-          return this;
+          return methods;
         },
         reverse: () => {
           actions.push({action: 'reverse'});
-          return this;
+          return methods;
         },
         rest: () => {
           actions.push({action: 'rest'});
-          return this;
+          return methods;
         },
         drop: (n) => {
           actions.push({action: 'drop', callback: n});
-          return this;
+          return methods;
         },
         dropRight: (n) => {
           actions.push({action: 'dropRight', callback: n});
-          return this;
+          return methods;
         },
         value: () => buildData()
       };
+
+      return methods;
     }
 
     kitten() {
