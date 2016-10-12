@@ -90,7 +90,7 @@
       };
 
       const matches = (obj, props) =>
-        this.every(this.keys(obj), (key) => obj[key] === props[key]);
+        this.isTruthy(this.find(this.keys(obj), (key) => obj[key] === props[key]));
 
       const where = (arr, props) =>
         this.filter(arr, (entry) => matches(entry, props));
@@ -239,6 +239,20 @@
         (Array.isArray ? Array.isArray(val) : val.constructor === Array);
     }
 
+    isPrime(n) {
+      let divisor = 2;
+
+      while (n > divisor) {
+        if (n % divisor === 0) {
+          return false;
+        }
+
+        divisor++;
+      }
+
+      return true;
+    }
+
     isEqual(a, b) {
       if (a === b) {
         return true;
@@ -290,48 +304,48 @@
       throw new Error(str);
     }
 
-    // TODO: implement native every and fix functionality on fallback to match native
     every(arr, callback) {
-      // if (this.isFunction(arr.every)) {
-      //   return arr.every(callback);
-      // }
+      if (this.isFunction(arr.every)) {
+        return arr.every(this.isFunction(callback) ? callback : (item) => item);
+      }
       return this.reduce(arr, (bool, item) => {
-        let result = bool;
-
         if (this.isFunction(callback)) {
-          result = callback(item);
-        }
-        if (this.isFunction(item)) {
-          result = item();
+          return callback(item);
         }
 
         if (this.isFalsey(item)) {
-          result = false;
+          return false;
         }
-        return result;
+        return bool;
       }, true);
     }
 
-    // TODO: implement native some and fix functionality on fallback to match native
     some(arr, callback) {
-      // if (this.isFunction(arr.some)) {
-      //   return arr.some(callback);
-      // }
+      if (this.isFunction(arr.some)) {
+        return arr.some(this.isFunction(callback) ? callback : (item) => item);
+      }
       return this.reduce(arr, (bool, item) => {
-        let result = bool;
-
         if (this.isFunction(callback)) {
-          result = callback(item);
-        }
-        if (this.isFunction(item)) {
-          result = item();
+          return callback(item);
         }
 
         if (item) {
-          result = true;
+          return true;
         }
-        return result;
+        return bool;
       }, false);
+    }
+
+    none(arr, callback) {
+      return this.reduce(arr, (bool, item) => {
+        if (this.isFunction(callback)) {
+          return !callback(item);
+        }
+        if (item) {
+          return false;
+        }
+        return bool;
+      }, true);
     }
 
     random(min = 0, max = 1) {

@@ -75,6 +75,14 @@ describe('Misc functions', () => {
     expect(yo.some([false, null, undefined], yo.isTruthy)).to.equal(false);
   });
 
+  it('Should have proper functionality on none', () => {
+    expect(yo.none([0, null, undefined, false])).to.equal(true);
+    expect(yo.none([1, 2, true, 'string'], yo.never)).to.equal(true);
+    expect(yo.none([1, 2, true, 'string', false])).to.equal(false);
+    expect(yo.none([false, null, undefined], yo.isFalsey)).to.equal(false);
+    expect(yo.none([false, null, undefined], yo.isTruthy)).to.equal(true);
+  });
+
   it('Should error to throw error', () => {
     expect(yo.error).to.throwError();
   });

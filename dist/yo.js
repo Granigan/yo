@@ -195,9 +195,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
       };
 
       var matches = function matches(obj, props) {
-        return _this.every(_this.keys(obj), function (key) {
+        return _this.isTruthy(_this.find(_this.keys(obj), function (key) {
           return obj[key] === props[key];
-        });
+        }));
       };
 
       var where = function where(arr, props) {
@@ -392,6 +392,21 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         return !this.isNull(val) && val && (Array.isArray ? Array.isArray(val) : val.constructor === Array);
       }
     }, {
+      key: 'isPrime',
+      value: function isPrime(n) {
+        var divisor = 2;
+
+        while (n > divisor) {
+          if (n % divisor === 0) {
+            return false;
+          }
+
+          divisor++;
+        }
+
+        return true;
+      }
+    }, {
       key: 'isEqual',
       value: function isEqual(a, b) {
         var _this2 = this;
@@ -461,59 +476,62 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
       value: function error(str) {
         throw new Error(str);
       }
-
-      // TODO: implement native every and fix functionality on fallback to match native
-
     }, {
       key: 'every',
       value: function every(arr, callback) {
         var _this4 = this;
 
-        // if (this.isFunction(arr.every)) {
-        //   return arr.every(callback);
-        // }
+        if (this.isFunction(arr.every)) {
+          return arr.every(this.isFunction(callback) ? callback : function (item) {
+            return item;
+          });
+        }
         return this.reduce(arr, function (bool, item) {
-          var result = bool;
-
           if (_this4.isFunction(callback)) {
-            result = callback(item);
-          }
-          if (_this4.isFunction(item)) {
-            result = item();
+            return callback(item);
           }
 
           if (_this4.isFalsey(item)) {
-            result = false;
+            return false;
           }
-          return result;
+          return bool;
         }, true);
       }
-
-      // TODO: implement native some and fix functionality on fallback to match native
-
     }, {
       key: 'some',
       value: function some(arr, callback) {
         var _this5 = this;
 
-        // if (this.isFunction(arr.some)) {
-        //   return arr.some(callback);
-        // }
+        if (this.isFunction(arr.some)) {
+          return arr.some(this.isFunction(callback) ? callback : function (item) {
+            return item;
+          });
+        }
         return this.reduce(arr, function (bool, item) {
-          var result = bool;
-
           if (_this5.isFunction(callback)) {
-            result = callback(item);
-          }
-          if (_this5.isFunction(item)) {
-            result = item();
+            return callback(item);
           }
 
           if (item) {
-            result = true;
+            return true;
           }
-          return result;
+          return bool;
         }, false);
+      }
+    }, {
+      key: 'none',
+      value: function none(arr, callback) {
+        var _this6 = this;
+
+        return this.reduce(arr, function (bool, item) {
+          if (_this6.isFunction(callback)) {
+            return !callback(item);
+          }
+          if (item) {
+            return false;
+          }
+          return bool;
+        }, true);
       }
     }, {
       key: 'random',
@@ -676,12 +694,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
     }, {
       key: 'css',
       value: function css(selector, attr) {
-        var _this6 = this;
+        var _this7 = this;
 
         var elements = this.$(selector);
 
         var setStyle = function setStyle(element) {
-          _this6.each(_this6.keys(attr), function (prop) {
+          _this7.each(_this7.keys(attr), function (prop) {
             element.style[prop] = attr[prop];
           });
         };
@@ -752,10 +770,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
     }, {
       key: 'listMethods',
       value: function listMethods(func) {
-        var _this7 = this;
+        var _this8 = this;
 
         return this.filter(this.keys(func || this), function (method) {
-          return _this7.negate(_this7.isFunction)(method);
+          return _this8.negate(_this8.isFunction)(method);
         });
       }
     }, {
@@ -795,11 +813,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
     }, {
       key: 'pick',
       value: function pick(arr, query) {
-        var _this8 = this;
+        var _this9 = this;
 
         return this.reduce(arr, function (value, item) {
           for (var prop in query) {
-            if (item[prop] && _this8.isEqual(item[prop], query[prop])) {
+            if (item[prop] && _this9.isEqual(item[prop], query[prop])) {
               value.push(item);
             }
           }
@@ -865,10 +883,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
     }, {
       key: 'validateMethodNames',
       value: function validateMethodNames(func) {
-        var _this9 = this;
+        var _this10 = this;
 
         var invalidMethodNames = this.reduce(this.listMethods(func), function (value, method) {
-          var match = _this9.findKey(_this9.arrayToObject(_this9.reservedWords()), method);
+          var match = _this10.findKey(_this10.arrayToObject(_this10.reservedWords()), method);
           if (match) {
             value.push(match);
           }
@@ -953,14 +971,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
     }, {
       key: 'nthArg',
       value: function nthArg(n) {
-        var _this10 = this;
+        var _this11 = this;
 
         return function () {
           for (var _len13 = arguments.length, args = Array(_len13), _key13 = 0; _key13 < _len13; _key13++) {
             args[_key13] = arguments[_key13];
           }
 
-          return _this10.nth(args, n);
+          return _this11.nth(args, n);
         };
       }
     }, {
@@ -1063,60 +1081,60 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
     }, {
       key: 'chain',
       value: function chain(data) {
-        var _this11 = this;
+        var _this12 = this;
 
         var result = data;
         var methods = {
           filter: function filter(callback) {
-            result = _this11.filter(result, callback);
+            result = _this12.filter(result, callback);
             return methods;
           },
           reject: function reject(callback) {
-            result = _this11.reject(result, callback);
+            result = _this12.reject(result, callback);
             return methods;
           },
           map: function map(callback) {
-            result = _this11.map(result, callback);
+            result = _this12.map(result, callback);
             return methods;
           },
           reduce: function reduce(callback, initialValue) {
-            result = _this11.reduce(result, callback, initialValue);
+            result = _this12.reduce(result, callback, initialValue);
             return methods;
           },
           find: function find(callback, useBinarySearch) {
-            result = _this11.find(result, callback, useBinarySearch);
+            result = _this12.find(result, callback, useBinarySearch);
             return methods;
           },
           findKey: function findKey(callback) {
-            result = _this11.findKey(result, callback);
+            result = _this12.findKey(result, callback);
             return methods;
           },
           pick: function pick(callback) {
-            result = _this11.pick(result, callback);
+            result = _this12.pick(result, callback);
             return methods;
           },
           flatten: function flatten() {
-            result = _this11.flatten(result);
+            result = _this12.flatten(result);
             return methods;
           },
           first: function first() {
-            result = _this11.first(result);
+            result = _this12.first(result);
             return methods;
           },
           reverse: function reverse() {
-            result = _this11.reverse(result);
+            result = _this12.reverse(result);
             return methods;
           },
           rest: function rest() {
-            result = _this11.rest(result);
+            result = _this12.rest(result);
             return methods;
           },
           drop: function drop(n) {
-            result = _this11.drop(result, n);
+            result = _this12.drop(result, n);
             return methods;
           },
           dropRight: function dropRight(n) {
-            result = _this11.dropRight(result, n);
+            result = _this12.dropRight(result, n);
             return methods;
           },
           value: function value() {
@@ -1132,16 +1150,16 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
     }, {
       key: 'lazyChain',
       value: function lazyChain(data) {
-        var _this12 = this;
+        var _this13 = this;
 
         var result = data;
         var actions = [];
         var buildData = function buildData() {
-          _this12.each(actions, function (_ref) {
+          _this13.each(actions, function (_ref) {
             var action = _ref.action;
             var callback = _ref.callback;
 
-            result = _this12[action](result, callback, result.attributes);
+            result = _this13[action](result, callback, result.attributes);
           });
           return result;
         };
@@ -1209,18 +1227,18 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
     }, {
       key: 'kitten',
       value: function kitten() {
-        var _this13 = this;
+        var _this14 = this;
 
         this.each(this.times(this.random(5, 20)), function () {
-          var greenOrRed = _this13.random() ? 'green' : 'red';
-          var orangeOrBlue = _this13.random() ? 'orange' : 'blue';
-          var meowOrPurr = _this13.random() ? 'meow' : 'purrr';
-          var color = _this13.random() ? greenOrRed : orangeOrBlue;
+          var greenOrRed = _this14.random() ? 'green' : 'red';
+          var orangeOrBlue = _this14.random() ? 'orange' : 'blue';
+          var meowOrPurr = _this14.random() ? 'meow' : 'purrr';
+          var color = _this14.random() ? greenOrRed : orangeOrBlue;
           var meow = function meow() {
             return meowOrPurr;
           };
-          var randomTimes = _this13.random(1, _this13.random(2, 4));
-          var allTheMeows = _this13.map(_this13.times(randomTimes), meow).join(' ');
+          var randomTimes = _this14.random(1, _this14.random(2, 4));
+          var allTheMeows = _this14.map(_this14.times(randomTimes), meow).join(' ');
           console.log('%c' + allTheMeows, 'color: ' + color);
         });
       }
