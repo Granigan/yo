@@ -51,6 +51,19 @@ describe('Misc functions', () => {
     expect(yo.never()).to.eql(false);
   });
 
+  it('Should memoize function', () => {
+    const hello = (val) => val;
+    const memoized = yo.memoize(hello);
+    expect(memoized).to.be.an('function');
+    expect(memoized(1)).to.equal(1);
+    expect(memoized(2)).to.equal(2);
+    expect(memoized(2)).to.equal(2);
+  });
+
+  it('Should find missing number', () => {
+    expect(yo.missingNumber([5, 2, 6, 1, 3])).to.equal(4);
+  });
+
   it('Should add new method with mixin', () => {
     const currentMethodCount = yo.listMethods().length;
     yo.mixin({hello: () => 1});

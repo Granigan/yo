@@ -49,6 +49,7 @@
 
       const times = this.range;
       const add = (a, b) => a + b;
+      const addSelf = (a) => a + a;
       const subtract = (a, b) => a - b;
       const multiply = (a, b) => a * b;
       const divide = (a, b) => a / b;
@@ -159,11 +160,20 @@
         }, []);
       };
 
+      const greatestCommonDivisor = (a, b) => {
+        if (b === 0) {
+          return a;
+        }
+
+        return greatestCommonDivisor(b, a % b);
+      };
+
       this.mixin({
         reduce,
         noop: () => {},
         times,
         add,
+        addSelf,
         subtract,
         multiply,
         divide,
@@ -184,7 +194,8 @@
         findLargestSubArrayBySum,
         findPairsBySum,
         findDuplicates,
-        skipDuplicates
+        skipDuplicates,
+        greatestCommonDivisor
       });
     }
 
@@ -354,6 +365,19 @@
       }
 
       return Math.floor(Math.random() * (max - min + 1) + min);
+    }
+
+    memoize(fn) {
+      const memo = {};
+
+      return (...args) => {
+        if (args in memo) {
+          return memo[args];
+        }
+
+        memo[args] = fn(...args);
+        return memo[args];
+      };
     }
 
     $(selector, context) {
@@ -682,6 +706,32 @@
       return val.reverse();
     }
 
+    reverseWords(val) {
+      return this.reverse(this.words(val)).join(' ');
+    }
+
+    reverseInPlace(val) {
+      return this.reverse(this.reverse(val.split(' ')).join(' '));
+    }
+
+    missingNumber(arr) {
+      const n = arr.length + 1;
+      const expected = n * (n + 1) / 2;
+      return expected - this.sum(arr);
+    }
+
+    findLargestSum(arr) {
+      const largest = this.max(arr);
+      const duplicates = this.findDuplicates(arr);
+      const callback = (i) => i === largest;
+
+      if (this.find(duplicates, callback)) {
+        return this.addSelf(largest);
+      }
+
+      return largest + this.max(this.reject(arr, callback));
+    }
+
     first(arr) {
       return arr[0];
     }
@@ -752,11 +802,11 @@
     }
 
     min(...args) {
-      return Math.min(...args);
+      return Math.min(...this.flatten(args));
     }
 
     max(...args) {
-      return Math.max(...args);
+      return Math.max(...this.flatten(args));
     }
 
     gt(a, b) {

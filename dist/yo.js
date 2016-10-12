@@ -126,6 +126,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
       var add = function add(a, b) {
         return a + b;
       };
+      var addSelf = function addSelf(a) {
+        return a + a;
+      };
       var subtract = function subtract(a, b) {
         return a - b;
       };
@@ -289,11 +292,20 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         }, []);
       };
 
+      var greatestCommonDivisor = function greatestCommonDivisor(a, b) {
+        if (b === 0) {
+          return a;
+        }
+
+        return greatestCommonDivisor(b, a % b);
+      };
+
       this.mixin({
         reduce: reduce,
         noop: function noop() {},
         times: times,
         add: add,
+        addSelf: addSelf,
         subtract: subtract,
         multiply: multiply,
         divide: divide,
@@ -314,7 +326,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         findLargestSubArrayBySum: findLargestSubArrayBySum,
         findPairsBySum: findPairsBySum,
         findDuplicates: findDuplicates,
-        skipDuplicates: skipDuplicates
+        skipDuplicates: skipDuplicates,
+        greatestCommonDivisor: greatestCommonDivisor
       });
     }
 
@@ -546,6 +559,24 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         return Math.floor(Math.random() * (max - min + 1) + min);
       }
     }, {
+      key: 'memoize',
+      value: function memoize(fn) {
+        var memo = {};
+
+        return function () {
+          for (var _len10 = arguments.length, args = Array(_len10), _key10 = 0; _key10 < _len10; _key10++) {
+            args[_key10] = arguments[_key10];
+          }
+
+          if (args in memo) {
+            return memo[args];
+          }
+
+          memo[args] = fn.apply(undefined, args);
+          return memo[args];
+        };
+      }
+    }, {
       key: '$',
       value: function $(selector, context) {
         var element = void 0;
@@ -619,14 +650,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
       key: 'curry',
       value: function curry(fn) {
         var curriedFn = function curriedFn() {
-          for (var _len10 = arguments.length, args = Array(_len10), _key10 = 0; _key10 < _len10; _key10++) {
-            args[_key10] = arguments[_key10];
+          for (var _len11 = arguments.length, args = Array(_len11), _key11 = 0; _key11 < _len11; _key11++) {
+            args[_key11] = arguments[_key11];
           }
 
           if (args.length < fn.length) {
             return function () {
-              for (var _len11 = arguments.length, newArgs = Array(_len11), _key11 = 0; _key11 < _len11; _key11++) {
-                newArgs[_key11] = arguments[_key11];
+              for (var _len12 = arguments.length, newArgs = Array(_len12), _key12 = 0; _key12 < _len12; _key12++) {
+                newArgs[_key12] = arguments[_key12];
               }
 
               return curriedFn.apply(undefined, _toConsumableArray(args.concat(newArgs)));
@@ -677,8 +708,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
     }, {
       key: 'extend',
       value: function extend() {
-        for (var _len12 = arguments.length, args = Array(_len12), _key12 = 0; _key12 < _len12; _key12++) {
-          args[_key12] = arguments[_key12];
+        for (var _len13 = arguments.length, args = Array(_len13), _key13 = 0; _key13 < _len13; _key13++) {
+          args[_key13] = arguments[_key13];
         }
 
         /* eslint-disable no-param-reassign */
@@ -906,6 +937,38 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         return val.reverse();
       }
     }, {
+      key: 'reverseWords',
+      value: function reverseWords(val) {
+        return this.reverse(this.words(val)).join(' ');
+      }
+    }, {
+      key: 'reverseInPlace',
+      value: function reverseInPlace(val) {
+        return this.reverse(this.reverse(val.split(' ')).join(' '));
+      }
+    }, {
+      key: 'missingNumber',
+      value: function missingNumber(arr) {
+        var n = arr.length + 1;
+        var expected = n * (n + 1) / 2;
+        return expected - this.sum(arr);
+      }
+    }, {
+      key: 'findLargestSum',
+      value: function findLargestSum(arr) {
+        var largest = this.max(arr);
+        var duplicates = this.findDuplicates(arr);
+        var callback = function callback(i) {
+          return i === largest;
+        };
+
+        if (this.find(duplicates, callback)) {
+          return this.addSelf(largest);
+        }
+
+        return largest + this.max(this.reject(arr, callback));
+      }
+    }, {
       key: 'first',
       value: function first(arr) {
         return arr[0];
@@ -974,8 +1037,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         var _this11 = this;
 
         return function () {
-          for (var _len13 = arguments.length, args = Array(_len13), _key13 = 0; _key13 < _len13; _key13++) {
-            args[_key13] = arguments[_key13];
+          for (var _len14 = arguments.length, args = Array(_len14), _key14 = 0; _key14 < _len14; _key14++) {
+            args[_key14] = arguments[_key14];
           }
 
           return _this11.nth(args, n);
@@ -989,8 +1052,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
     }, {
       key: 'restArg',
       value: function restArg() {
-        for (var _len14 = arguments.length, args = Array(_len14), _key14 = 0; _key14 < _len14; _key14++) {
-          args[_key14] = arguments[_key14];
+        for (var _len15 = arguments.length, args = Array(_len15), _key15 = 0; _key15 < _len15; _key15++) {
+          args[_key15] = arguments[_key15];
         }
 
         return this.rest(args);
@@ -998,8 +1061,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
     }, {
       key: 'lastArg',
       value: function lastArg() {
-        for (var _len15 = arguments.length, args = Array(_len15), _key15 = 0; _key15 < _len15; _key15++) {
-          args[_key15] = arguments[_key15];
+        for (var _len16 = arguments.length, args = Array(_len16), _key16 = 0; _key16 < _len16; _key16++) {
+          args[_key16] = arguments[_key16];
         }
 
         return this.last(args);
@@ -1007,12 +1070,20 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
     }, {
       key: 'min',
       value: function min() {
-        return Math.min.apply(Math, arguments);
+        for (var _len17 = arguments.length, args = Array(_len17), _key17 = 0; _key17 < _len17; _key17++) {
+          args[_key17] = arguments[_key17];
+        }
+
+        return Math.min.apply(Math, _toConsumableArray(this.flatten(args)));
       }
     }, {
       key: 'max',
       value: function max() {
-        return Math.max.apply(Math, arguments);
+        for (var _len18 = arguments.length, args = Array(_len18), _key18 = 0; _key18 < _len18; _key18++) {
+          args[_key18] = arguments[_key18];
+        }
+
+        return Math.max.apply(Math, _toConsumableArray(this.flatten(args)));
       }
     }, {
       key: 'gt',

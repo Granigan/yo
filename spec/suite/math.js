@@ -6,26 +6,50 @@ describe('Math', () => {
     expect(yo.sum(1, 2, 3)).to.eql(6);
     expect(yo.sum([1, 2, 3])).to.eql(6);
   });
+
   it('Should add values', () => {
     expect(yo.add(1, 2)).to.eql(3);
   });
+
+  it('Should addSelf values', () => {
+    expect(yo.addSelf(2)).to.eql(4);
+  });
+
   it('Should subtract values', () => {
     expect(yo.subtract(1, 2)).to.eql(-1);
   });
+
   it('Should multiply values', () => {
     expect(yo.multiply(2, 2)).to.eql(4);
   });
+
   it('Should divide values', () => {
     expect(yo.divide(5, 2)).to.eql(2.5);
   });
+
   it('Should calculate the mean value', () => {
     expect(yo.mean(4, 2, 8, 6)).to.eql(5);
   });
+
   it('Should find max value', () => {
     expect(yo.max(4, 2, 8, 6)).to.eql(8);
+    expect(yo.max([4, 2, 8, 6])).to.eql(8);
   });
+
   it('Should find min value', () => {
     expect(yo.min(4, 2, 8, 6)).to.eql(2);
+    expect(yo.min([4, 2, 8, 6])).to.eql(2);
+  });
+
+  it('Should find greatest common divisors', () => {
+    expect(yo.greatestCommonDivisor(14, 21)).to.equal(7);
+    expect(yo.greatestCommonDivisor(69, 169)).to.equal(1);
+  });
+
+  it('Should find largest sum from array', () => {
+    expect(yo.findLargestSum([1, 2, 3, 4, 5])).to.equal(9);
+    expect(yo.findLargestSum([1, 2, 3, 4, 5, 5])).to.equal(10);
+    expect(yo.findLargestSum([1, 2, 3, 4, 5, 6])).to.equal(11);
   });
 
   it('Should calculate factorial correctly', () => {

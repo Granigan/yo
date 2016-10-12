@@ -42,4 +42,12 @@ describe('Strings', () => {
   it('Should reverse string', () => {
     expect(yo.reverse('hello world')).to.equal('dlrow olleh');
   });
+
+  it('Should reverse words', () => {
+    expect(yo.reverseWords('hello world')).to.equal('world hello');
+  });
+
+  it('Should reverse in place', () => {
+    expect(yo.reverseInPlace('hello world')).to.equal('olleh dlrow');
+  });
 });
