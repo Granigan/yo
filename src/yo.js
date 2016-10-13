@@ -253,6 +253,10 @@
     isPrime(n) {
       let divisor = 2;
 
+      if (n <= 1) {
+        return false;
+      }
+
       while (n > divisor) {
         if (n % divisor === 0) {
           return false;
@@ -299,6 +303,16 @@
       }
 
       return false;
+    }
+
+    primeNumbers(n) {
+      return this.reduce(this.times(n + 1), (initial, i) => {
+        if (this.isPrime(i)) {
+          initial.push(i);
+        }
+
+        return initial;
+      }, []);
     }
 
     flatten(arr) {
@@ -987,6 +1001,44 @@
           return methods;
         },
         value: () => buildData()
+      };
+
+      return methods;
+    }
+
+    mathChain(value) {
+      let result = value;
+
+      const methods = {
+        add: (val) => {
+          result = this.add(result, val);
+          return methods;
+        },
+        addSelf: () => {
+          result = this.addSelf(result);
+          return methods;
+        },
+        subtract: (val) => {
+          result = this.subtract(result, val);
+          return methods;
+        },
+        multiply: (val) => {
+          result = this.multiply(result, val);
+          return methods;
+        },
+        divide: (val) => {
+          result = this.divide(result, val);
+          return methods;
+        },
+        sum: (...args) => {
+          result = this.sum(result, ...args);
+          return methods;
+        },
+        mean: (...args) => {
+          result = this.mean(result, ...args);
+          return methods;
+        },
+        value: () => result
       };
 
       return methods;

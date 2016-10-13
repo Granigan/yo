@@ -19,22 +19,22 @@ describe('Object', () => {
     expect(results).to.eql([true, true]);
   });
 
-  it('Should find using findKey', () => {
-    expect(yo.findKey({a: 1, b: 2}, 'a')).to.eql(1);
-  });
-
-  it('Should find using pick', () => {
-    expect(yo.pick([{a: 1}, {b: 2}], {a: 1})).to.eql([{a: 1}]);
-    expect(yo.pick([{a: 1}, {b: 2}], {a: 2})).to.eql([]);
-    expect(yo.pick([{a: 1}, {b: 2}, {b: 2, c: 3}], {b: 2})).to.eql([{b: 2}, {b: 2, c: 3}]);
-  });
-
   describe('Find', () => {
     it('Should find using matches', () => {
       const value = yo.matches({a: 1, b: 2, c: 3}, {c: 3});
       expect(value).to.equal(true);
       const noValue = yo.matches({a: 1, b: 2, c: 3}, {d: 4});
       expect(noValue).to.equal(false);
+    });
+
+    it('Should find using findKey', () => {
+      expect(yo.findKey({a: 1, b: 2}, 'a')).to.eql(1);
+    });
+
+    it('Should find using pick', () => {
+      expect(yo.pick([{a: 1}, {b: 2}], {a: 1})).to.eql([{a: 1}]);
+      expect(yo.pick([{a: 1}, {b: 2}], {a: 2})).to.eql([]);
+      expect(yo.pick([{a: 1}, {b: 2}, {b: 2, c: 3}], {b: 2})).to.eql([{b: 2}, {b: 2, c: 3}]);
     });
   });
 });
