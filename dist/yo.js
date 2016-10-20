@@ -703,14 +703,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
           return [arr];
         }
 
-        if (this.isFunction(arr.map)) {
-          var mapStringValue = function mapStringValue(item) {
-            if (_this7.first(callback) === '.') {
-              return _this7.get(item, callback);
-            }
-            return callback;
-          };
+        var mapStringValue = function mapStringValue(item) {
+          if (_this7.first(callback) === '.') {
+            return _this7.get(item, callback);
+          }
+          return callback;
+        };
 
+        if (this.isFunction(arr.map)) {
           return arr.map(this.isFunction(callback) ? callback : mapStringValue);
         }
 
@@ -718,7 +718,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
           if (_this7.isFunction(callback)) {
             initial.push(callback(data, i, arr));
           } else {
-            initial.push(callback);
+            initial.push(mapStringValue(data));
           }
           return initial;
         }, []);

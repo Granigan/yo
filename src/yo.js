@@ -479,14 +479,14 @@
         return [arr];
       }
 
-      if (this.isFunction(arr.map)) {
-        const mapStringValue = (item) => {
-          if (this.first(callback) === '.') {
-            return this.get(item, callback);
-          }
-          return callback;
-        };
+      const mapStringValue = (item) => {
+        if (this.first(callback) === '.') {
+          return this.get(item, callback);
+        }
+        return callback;
+      };
 
+      if (this.isFunction(arr.map)) {
         return arr.map(this.isFunction(callback) ? callback : mapStringValue);
       }
 
@@ -494,7 +494,7 @@
         if (this.isFunction(callback)) {
           initial.push(callback(data, i, arr));
         } else {
-          initial.push(callback);
+          initial.push(mapStringValue(data));
         }
         return initial;
       }, []);
