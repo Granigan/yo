@@ -489,6 +489,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         }, []);
       }
     }, {
+      key: 'repeat',
+      value: function repeat(str, n) {
+        return this.map(this.times(n), function () {
+          return str;
+        }).join('');
+      }
+    }, {
       key: 'flatten',
       value: function flatten(arr) {
         var _this4 = this;
@@ -684,6 +691,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
         return curriedFn;
       }
+
+      // TODO: add support for callback being a string
+
     }, {
       key: 'map',
       value: function map(arr, callback) {

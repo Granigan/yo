@@ -315,6 +315,10 @@
       }, []);
     }
 
+    repeat(str, n) {
+      return this.map(this.times(n), () => str).join('');
+    }
+
     flatten(arr) {
       if (this.isEmpty(arr)) {
         return [];
@@ -468,6 +472,7 @@
       return curriedFn;
     }
 
+    // TODO: add support for callback being a string
     map(arr, callback) {
       if (!this.isArray(arr)) {
         return [arr];

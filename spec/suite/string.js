@@ -50,4 +50,9 @@ describe('Strings', () => {
   it('Should reverse in place', () => {
     expect(yo.reverseInPlace('hello world')).to.equal('olleh dlrow');
   });
+
+  it('Should repeat a word', () => {
+    expect(yo.repeat('hello', 2)).to.equal('hellohello');
+    expect(yo.repeat('hello', 3)).to.equal('hellohellohello');
+  });
 });
