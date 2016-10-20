@@ -516,16 +516,15 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             return item;
           });
         }
-        return this.reduce(arr, function (bool, item) {
+        var results = this.map(arr, function (item) {
           if (_this5.isFunction(callback)) {
             return callback(item);
           }
 
-          if (_this5.isFalsey(item)) {
-            return false;
-          }
-          return bool;
-        }, true);
+          return !_this5.isFalsey(item);
+        });
+
+        return this.size(this.compact(results)) === this.size(arr);
       }
     }, {
       key: 'some',
@@ -537,16 +536,15 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             return item;
           });
         }
-        return this.reduce(arr, function (bool, item) {
+        var results = this.map(arr, function (item) {
           if (_this6.isFunction(callback)) {
             return callback(item);
           }
 
-          if (item) {
-            return true;
-          }
-          return bool;
-        }, false);
+          return item;
+        });
+
+        return this.size(this.compact(results)) > 0;
       }
     }, {
       key: 'none',

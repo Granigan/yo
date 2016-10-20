@@ -333,32 +333,30 @@
       if (this.isFunction(arr.every)) {
         return arr.every(this.isFunction(callback) ? callback : (item) => item);
       }
-      return this.reduce(arr, (bool, item) => {
+      const results = this.map(arr, (item) => {
         if (this.isFunction(callback)) {
           return callback(item);
         }
 
-        if (this.isFalsey(item)) {
-          return false;
-        }
-        return bool;
-      }, true);
+        return !this.isFalsey(item);
+      });
+
+      return this.size(this.compact(results)) === this.size(arr);
     }
 
     some(arr, callback) {
       if (this.isFunction(arr.some)) {
         return arr.some(this.isFunction(callback) ? callback : (item) => item);
       }
-      return this.reduce(arr, (bool, item) => {
+      const results = this.map(arr, (item) => {
         if (this.isFunction(callback)) {
           return callback(item);
         }
 
-        if (item) {
-          return true;
-        }
-        return bool;
-      }, false);
+        return item;
+      });
+
+      return this.size(this.compact(results)) > 0;
     }
 
     none(arr, callback) {

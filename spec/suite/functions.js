@@ -77,6 +77,7 @@ describe('Misc functions', () => {
     expect(yo.every([1, 2, true, 'string'], yo.isTruthy)).to.equal(true);
     expect(yo.every([1, 2, true, 'string', false])).to.equal(false);
     expect(yo.every([1, 2, true, 'string', false], yo.isTruthy)).to.equal(false);
+    expect(yo.every([1, 2, true, 'string', false], yo.isFalsey)).to.equal(false);
   });
 
   it('Should have proper functionality on some', () => {
@@ -85,15 +86,21 @@ describe('Misc functions', () => {
     expect(yo.some([1, 2, true, 'string', false])).to.equal(true);
     expect(yo.some([1, 2, true, 'string', false], yo.always)).to.equal(true);
     expect(yo.some([false, null, undefined])).to.equal(false);
+    expect(yo.some([false, null, undefined, 1])).to.equal(true);
     expect(yo.some([false, null, undefined], yo.isTruthy)).to.equal(false);
+    expect(yo.some([false, null, undefined, 1], yo.isTruthy)).to.equal(true);
+    expect(yo.some([false, null, undefined, 1, false], yo.isTruthy)).to.equal(true);
+    expect(yo.some([false, null, undefined], yo.isFalsey)).to.equal(true);
   });
 
   it('Should have proper functionality on none', () => {
     expect(yo.none([0, null, undefined, false])).to.equal(true);
+    expect(yo.none([0, null, undefined, false, 1])).to.equal(false);
     expect(yo.none([1, 2, true, 'string'], yo.never)).to.equal(true);
     expect(yo.none([1, 2, true, 'string', false])).to.equal(false);
     expect(yo.none([false, null, undefined], yo.isFalsey)).to.equal(false);
     expect(yo.none([false, null, undefined], yo.isTruthy)).to.equal(true);
+    expect(yo.none([false, null, undefined, 1], yo.isTruthy)).to.equal(false);
   });
 
   it('Should error to throw error', () => {
