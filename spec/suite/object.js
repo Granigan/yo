@@ -19,6 +19,11 @@ describe('Object', () => {
     expect(results).to.eql([true, true]);
   });
 
+  it('Should get values from object based on key', () => {
+    expect(yo.get({a: {b: {hello: 1}}}, '.a')).to.eql({b: {hello: 1}});
+    expect(yo.get({a: {b: {hello: 1}}}, '.a.b')).to.eql({hello: 1});
+  });
+
   describe('Find', () => {
     it('Should find using matches', () => {
       const value = yo.matches({a: 1, b: 2, c: 3}, {c: 3});

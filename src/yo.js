@@ -306,13 +306,7 @@
     }
 
     primeNumbers(n) {
-      return this.reduce(this.times(n + 1), (initial, i) => {
-        if (this.isPrime(i)) {
-          initial.push(i);
-        }
-
-        return initial;
-      }, []);
+      return this.filter(this.times(n + 1), this.isPrime);
     }
 
     repeat(str, n) {
@@ -342,7 +336,7 @@
           return callback(item);
         }
 
-        return !this.isFalsey(item);
+        return this.isTruthy(item);
       });
 
       return this.size(this.compact(results)) === this.size(arr);
@@ -365,6 +359,9 @@
 
     none(arr, callback) {
       return this.reduce(arr, (bool, item) => {
+        if (!bool) {
+          return false;
+        }
         if (this.isFunction(callback)) {
           return !callback(item);
         }
@@ -472,18 +469,33 @@
       return curriedFn;
     }
 
-    // TODO: add support for callback being a string
+    get(obj, path) {
+      const keys = this.compact(path.split('.'));
+      return this.reduce(keys, (initial, key) => initial[key], obj);
+    }
+
     map(arr, callback) {
       if (!this.isArray(arr)) {
         return [arr];
       }
 
       if (this.isFunction(arr.map)) {
-        return arr.map(callback);
+        const mapStringValue = (item) => {
+          if (this.first(callback) === '.') {
+            return this.get(item, callback);
+          }
+          return callback;
+        };
+
+        return arr.map(this.isFunction(callback) ? callback : mapStringValue);
       }
 
       return this.reduce(arr, (initial, data, i) => {
-        initial.push(callback(data, i, arr));
+        if (this.isFunction(callback)) {
+          initial.push(callback(data, i, arr));
+        } else {
+          initial.push(callback);
+        }
         return initial;
       }, []);
     }
@@ -933,7 +945,8 @@
           result = this.dropRight(result, n);
           return methods;
         },
-        value: () => result
+        value: () => result,
+        toJSON: () => JSON.stringify(methods.value())
       };
 
       return methods;
@@ -1003,7 +1016,8 @@
           actions.push({action: 'dropRight', callback: n});
           return methods;
         },
-        value: () => buildData()
+        value: buildData,
+        toJSON: () => JSON.stringify(methods.value())
       };
 
       return methods;

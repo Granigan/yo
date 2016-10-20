@@ -14,4 +14,23 @@ describe('Map', () => {
     expect(value).to.be.an('array');
     expect(value).to.eql(['hello']);
   });
+
+  it('Should accept string as callback', () => {
+    const value = yo.map([1, 2, 3], 'hello');
+
+    expect(value).to.be.an('array');
+    expect(value).to.eql(['hello', 'hello', 'hello']);
+  });
+
+  it('Should return values based on path', () => {
+    const value = yo.map([{a: {b: {hello: 1}}}], '.a');
+
+    expect(value).to.be.an('array');
+    expect(value).to.eql([{b: {hello: 1}}]);
+
+    const anotherValue = yo.map([{a: 'hello'}, {a: 'hello', b: 'nope'}], '.a');
+
+    expect(anotherValue).to.be.an('array');
+    expect(anotherValue).to.eql(['hello', 'hello']);
+  });
 });
