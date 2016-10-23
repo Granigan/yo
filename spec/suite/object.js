@@ -22,6 +22,7 @@ describe('Object', () => {
   it('Should get values from object based on key', () => {
     expect(yo.get({a: {b: {hello: 1}}}, '.a')).to.eql({b: {hello: 1}});
     expect(yo.get({a: {b: {hello: 1}}}, '.a.b')).to.eql({hello: 1});
+    expect(yo.get({a: {b: {hello: 1}}}, '.a.b.hello')).to.eql(1);
   });
 
   describe('Find', () => {

@@ -111,6 +111,7 @@ describe('Array', () => {
   it('Should be able to reject items from array', () => {
     const values = [1, 2, 3, 3, 4, 2];
     expect(yo.reject(values, (i) => i === 3)).to.eql([1, 2, 4, 2]);
+    expect(yo.reject(values, (i) => i === 3)).not.to.contain(3);
     expect(yo.reject(values, (i) => i === 100)).to.eql(values);
   });
 
@@ -141,7 +142,11 @@ describe('Array', () => {
     expect(yo.duplicate([1, 2, 3, 4, 5])).to.eql([1, 2, 3, 4, 5, 1, 2, 3, 4, 5]);
   });
 
-  it('Should merge two arraya', () => {
+  it('Should clone array', () => {
+    expect(yo.clone([1, 2, 3])).to.eql([1, 2, 3]);
+  });
+
+  it('Should merge two arrays', () => {
     expect(yo.merge([1, 2, 3], [4, 5])).to.eql([1, 2, 3, 4, 5]);
   });
 
@@ -153,6 +158,29 @@ describe('Array', () => {
   it('Should skip duplicates', () => {
     const value = yo.skipDuplicates([2, 3, 4, 3, 10, 10]);
     expect(value).to.eql([2, 3, 4, 10]);
+  });
+
+  it('Should fill array', () => {
+    expect(yo.fill([1, 2, 3], 'a')).to.eql(['a', 'a', 'a']);
+  });
+
+  it('Should shuffle array', () => {
+    expect(yo.shuffle([1, 2, 3])).not.to.eql([1, 2, 3]);
+    expect(yo.shuffle([1, 2, 3])).to.be.an('array');
+  });
+
+  it('Should sample array', () => {
+    expect(yo.sample([1, 2, 3])).not.to.eql([1, 2, 3]);
+    expect(yo.sample([1, 2, 3])).to.be.an('number');
+  });
+
+  it('Should partition array', () => {
+    expect(yo.partition([1, 2, 3, 4], yo.isOdd)).to.eql([[1, 3], [2, 4]]);
+  });
+
+  it('Should union two arrays', () => {
+    expect(yo.union([1, 2], [3, 4])).to.eql([1, 2, 3, 4]);
+    expect(yo.union([1, 2], [50, 0, 3, 4])).to.eql([0, 1, 2, 3, 4, 50]);
   });
 
   describe('Flatten', () => {
@@ -240,6 +268,18 @@ describe('Array', () => {
       const value = yo.findDuplicates([2, 3, 4, 3, 10, 10]);
       expect(value).to.be.an('array');
       expect(value).to.eql([3, 10]);
+    });
+
+    it('Should pluck value from array', () => {
+      const value = yo.pluck([{a: {b: {hello: 1}}}], 'a');
+
+      expect(value).to.be.an('array');
+      expect(value).to.eql([{b: {hello: 1}}]);
+    });
+
+    it('Should find using contains', () => {
+      expect(yo.contains([1, 2, 3, 4], 2)).to.eql(true);
+      expect(yo.contains([1, 2, 3, 4], 20)).to.eql(false);
     });
   });
 });

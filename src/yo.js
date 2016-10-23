@@ -20,6 +20,9 @@
         return result;
       };
 
+      const reduceRight = (arr, callback, initialValue) =>
+        reduce(this.reverse(arr), callback, initialValue);
+
       const privatePipe = (funcs, args) =>
         reduce(this.rest(funcs), this.callFunctor, this.first(funcs)(...args));
 
@@ -56,6 +59,8 @@
       const sum = (...args) => reduce(this.flatten(args), add, 0);
       const mean = (...args) => divide(sum(...args), args.length);
       const factorial = (n) => reduce(this.rest(times(n + 1)), multiply, 1);
+      const isEven = (n) => n % 2 === 0;
+      const isOdd = (n) => !isEven(n);
 
       // TODO: add test
       const debounce = (fn, delay = 0) => {
@@ -90,15 +95,15 @@
         };
       };
 
-      const matches = (obj, props) =>
-        this.isTruthy(this.find(this.keys(obj), (key) => obj[key] === props[key]));
-
-      const where = (arr, props) =>
-        this.filter(arr, (entry) => matches(entry, props));
-
       const isFalsey = (arg) => !arg;
       const isTruthy = (arg) => !isFalsey(arg);
       const compact = (arr) => this.filter(arr, isTruthy);
+
+      const matches = (obj, props) =>
+        isTruthy(this.find(this.keys(obj), (key) => obj[key] === props[key]));
+
+      const where = (arr, props) =>
+        this.filter(arr, (entry) => matches(entry, props));
 
       const chunk = (arr, size) => {
         const chunks = Math.ceil(arr.length / size);
@@ -107,6 +112,7 @@
       };
 
       const merge = (a, b) => [].concat(a).concat(b);
+      const clone = (a) => [].concat(a);
       const mergeAndSort = (a, b) => merge(a, b).sort((c, d) => c - d);
       const duplicate = (arr) => merge(arr, arr);
 
@@ -144,7 +150,7 @@
         }, []);
 
       const skipDuplicates = (arr, binarySearch) => {
-        const duplicates = this.findDuplicates(arr, binarySearch);
+        const duplicates = findDuplicates(arr, binarySearch);
 
         return reduce(arr, (initial, value) => {
           const inDuplicates = this.find(duplicates, value, binarySearch);
@@ -168,8 +174,33 @@
         return greatestCommonDivisor(b, a % b);
       };
 
+      const getTruthyValuesFromArray = (arr, callback) =>
+        this.map(arr, this.isFunction(callback) ? callback : isTruthy);
+
+      const every = (arr, callback) => {
+        if (this.isFunction(arr.every)) {
+          return arr.every(this.isFunction(callback) ? callback : isTruthy);
+        }
+        const results = getTruthyValuesFromArray(arr, callback);
+        return this.size(compact(results)) === this.size(arr);
+      };
+
+      const some = (arr, callback) => {
+        if (this.isFunction(arr.some)) {
+          return arr.some(this.isFunction(callback) ? callback : isTruthy);
+        }
+        const results = getTruthyValuesFromArray(arr, callback);
+        return this.size(compact(results)) > 0;
+      };
+
+      const none = (arr, callback) => {
+        const results = getTruthyValuesFromArray(arr, callback);
+        return this.size(compact(results)) === 0;
+      };
+
       this.mixin({
         reduce,
+        reduceRight,
         noop: () => {},
         times,
         add,
@@ -180,6 +211,8 @@
         sum,
         mean,
         factorial,
+        isEven,
+        isOdd,
         debounce,
         throttle,
         matches,
@@ -189,13 +222,17 @@
         isTruthy,
         chunk,
         merge,
+        clone,
         mergeAndSort,
         duplicate,
         findLargestSubArrayBySum,
         findPairsBySum,
         findDuplicates,
         skipDuplicates,
-        greatestCommonDivisor
+        greatestCommonDivisor,
+        every,
+        some,
+        none
       });
     }
 
@@ -327,51 +364,6 @@
       throw new Error(str);
     }
 
-    every(arr, callback) {
-      if (this.isFunction(arr.every)) {
-        return arr.every(this.isFunction(callback) ? callback : (item) => item);
-      }
-      const results = this.map(arr, (item) => {
-        if (this.isFunction(callback)) {
-          return callback(item);
-        }
-
-        return this.isTruthy(item);
-      });
-
-      return this.size(this.compact(results)) === this.size(arr);
-    }
-
-    some(arr, callback) {
-      if (this.isFunction(arr.some)) {
-        return arr.some(this.isFunction(callback) ? callback : (item) => item);
-      }
-      const results = this.map(arr, (item) => {
-        if (this.isFunction(callback)) {
-          return callback(item);
-        }
-
-        return item;
-      });
-
-      return this.size(this.compact(results)) > 0;
-    }
-
-    none(arr, callback) {
-      return this.reduce(arr, (bool, item) => {
-        if (!bool) {
-          return false;
-        }
-        if (this.isFunction(callback)) {
-          return !callback(item);
-        }
-        if (item) {
-          return false;
-        }
-        return bool;
-      }, true);
-    }
-
     random(min = 0, max = 1) {
       if (!this.isNumber(min) || !this.isNumber(max)) {
         this.error('No numbers provided');
@@ -471,7 +463,31 @@
 
     get(obj, path) {
       const keys = this.compact(path.split('.'));
-      return this.reduce(keys, (initial, key) => initial[key], obj);
+      return this.reduce(keys, this.findKey, obj);
+    }
+
+    shuffle(arr) {
+      const newArr = this.clone(arr);
+      let currentIndex = newArr.length;
+
+      while (currentIndex !== 0) {
+        const randomIndex = Math.floor(Math.random() * currentIndex);
+        currentIndex -= 1;
+
+        const temporaryValue = newArr[currentIndex];
+        newArr[currentIndex] = newArr[randomIndex];
+        newArr[randomIndex] = temporaryValue;
+      }
+
+      if (this.isEqual(arr, newArr)) {
+        return this.shuffle(arr);
+      }
+
+      return newArr;
+    }
+
+    sample(arr) {
+      return this.first(this.shuffle(arr));
     }
 
     map(arr, callback) {
@@ -498,6 +514,25 @@
         }
         return initial;
       }, []);
+    }
+
+    pluck(arr, prop) {
+      return this.map(arr, `.${prop}`);
+    }
+
+    fill(arr, val) {
+      return this.map(arr, () => val);
+    }
+
+    partition(arr, predicate) {
+      return this.reduce(arr, (initial, val) => {
+        initial[(predicate(val) ? 0 : 1)].push(val);
+        return initial;
+      }, [[], []]);
+    }
+
+    union(a, b) {
+      return this.skipDuplicates(this.mergeAndSort(a, b));
     }
 
     each(arr, callback) {
@@ -858,6 +893,10 @@
       return (fromIndex ? this.slice(arr, fromIndex) : arr).indexOf(value);
     }
 
+    contains(arr, value, fromIndex) {
+      return this.indexOf(arr, value, fromIndex) !== -1;
+    }
+
     filter(arr, callback) {
       if (this.isUndefined(arr)) {
         return [];
@@ -876,7 +915,7 @@
     }
 
     reject(arr, callback) {
-      return this.filter(arr, (item) => !callback(item));
+      return this.filter(arr, this.negate(callback));
     }
 
     lastOfTheLastOfTheLast(arr) {

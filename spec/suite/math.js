@@ -76,6 +76,16 @@ describe('Math', () => {
     expect(yo.factorial(20)).to.eql(2432902008176640000);
   });
 
+  it('Should check even', () => {
+    expect(yo.isEven(1)).to.equal(false);
+    expect(yo.isEven(2)).to.equal(true);
+  });
+
+  it('Should check odd', () => {
+    expect(yo.isOdd(1)).to.equal(true);
+    expect(yo.isOdd(2)).to.equal(false);
+  });
+
   describe('Prime', () => {
     const primes = [
       2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67,
