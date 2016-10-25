@@ -1,4 +1,4 @@
-const yo = require('../../dist/yo.js');
+const yo = require('../../src/yo.js');
 const expect = require('expect.js');
 
 describe('Array', () => {
@@ -120,8 +120,16 @@ describe('Array', () => {
     expect(yo.times(3)).to.eql([0, 1, 2]);
   });
 
+  it('Should map array using times with iteratee', () => {
+    expect(yo.times(3, yo.always)).to.eql([true, true, true]);
+  });
+
   it('Should return initial items, all but the last', () => {
     expect(yo.initial([1, 2, 3, 4])).to.eql([1, 2, 3]);
+  });
+
+  it('Should get array values', () => {
+    expect(yo.values([1, 2, 3])).to.eql([1, 2, 3]);
   });
 
   it('Should return chunked array', () => {

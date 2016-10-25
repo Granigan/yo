@@ -1,4 +1,4 @@
-const yo = require('../../dist/yo.js');
+const yo = require('../../src/yo.js');
 const expect = require('expect.js');
 
 describe('Misc functions', () => {
@@ -105,6 +105,38 @@ describe('Misc functions', () => {
 
   it('Should error to throw error', () => {
     expect(yo.error).to.throwError();
+  });
+
+  it('Should return unique id', () => {
+    expect(yo.uniqueId()).to.equal(0);
+    expect(yo.uniqueId()).to.equal(1);
+    expect(yo.uniqueId()).to.equal(2);
+    expect(yo.uniqueId()).to.equal(3);
+  });
+
+  it('Should run function once', () => {
+    const yay = yo.once((val) => val);
+    expect(yay(true)).to.equal(true);
+    expect(yay(false)).to.equal(true);
+  });
+
+  it('Should run function after', () => {
+    const yay = yo.after(2, yo.always);
+    expect(yay()).to.equal(undefined);
+    expect(yay()).to.equal(true);
+    expect(yay()).to.equal(true);
+  });
+
+  it('Should run function before', () => {
+    const yay = yo.before(2, yo.always);
+    expect(yay()).to.equal(true);
+    expect(yay()).to.equal(true);
+    expect(yay()).to.equal(undefined);
+  });
+
+  it('Should wrap', () => {
+    const yay = yo.wrap(yo.passthru, (func, text) => `<p>${func(text)}</p>`);
+    expect(yay('hello')).to.equal('<p>hello</p>');
   });
 
   it('Should return random integer', () => {

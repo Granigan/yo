@@ -1,4 +1,4 @@
-const yo = require('../../dist/yo.js');
+const yo = require('../../src/yo.js');
 const expect = require('expect.js');
 
 describe('Math', () => {
@@ -139,8 +139,17 @@ describe('Math', () => {
       expect(yo.mathChain(100).mean(50, 100, 200).value()).to.equal(112.5);
     });
 
+    it('Should be able to plug', () => {
+      const value = yo.mathChain(100)
+        .mean(50, 100, 200)
+        .plug((val) => val + 10)
+        .value();
+
+      expect(value).to.equal(122.5);
+    });
+
     it('Should have proper amount of methods', () => {
-      expect(yo.size(yo.mathChain())).to.equal(8);
+      expect(yo.size(yo.mathChain())).to.equal(9);
     });
 
     it('Should be possible to chain all of the methods', () => {
@@ -152,9 +161,10 @@ describe('Math', () => {
         .multiply(5)
         .sum(50, 100, 200, 300)
         .mean(50, 100, 200, 300)
+        .plug((val) => val + 10)
         .value();
 
-      expect(value).to.equal(336);
+      expect(value).to.equal(346);
     });
   });
 });

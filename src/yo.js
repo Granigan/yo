@@ -3,6 +3,8 @@
 
   class Yo {
     constructor() {
+      let uniqueIdValue = 0;
+
       const reduce = (arr, callback, initialValue) => {
         let result;
         if (this.isUndefined(arr)) {
@@ -50,7 +52,8 @@
       this.passthru = (arg) => arg;
       this.now = () => new Date();
 
-      const times = this.range;
+      const times = (n, iteratee) =>
+        (iteratee ? this.map(this.range(n), iteratee) : this.range(n));
       const add = (a, b) => a + b;
       const addSelf = (a) => a + a;
       const subtract = (a, b) => a - b;
@@ -107,12 +110,12 @@
 
       const chunk = (arr, size) => {
         const chunks = Math.ceil(arr.length / size);
-        return this.map(times(chunks), (i) =>
+        return times(chunks, (i) =>
           this.slice(arr, (i * size), (i * size + size)));
       };
 
-      const merge = (a, b) => [].concat(a).concat(b);
-      const clone = (a) => [].concat(a);
+      const merge = (a, b) => [].concat(a, b);
+      const clone = (a) => [...a];
       const mergeAndSort = (a, b) => merge(a, b).sort((c, d) => c - d);
       const duplicate = (arr) => merge(arr, arr);
 
@@ -125,12 +128,12 @@
 
       const findPairsBySum = (arr, targetValue) =>
         reduce(arr, (initial, value, key) => {
-          const filtered = this.filter(this.drop(arr, key), (v) =>
+          const [filtered] = this.filter(this.drop(arr, key), (v) =>
             value + v === targetValue
           );
 
-          if (this.size(filtered)) {
-            initial.push([value, filtered[0]]);
+          if (this.isDefined(filtered)) {
+            initial.push([value, filtered]);
           }
 
           return initial;
@@ -138,12 +141,12 @@
 
       const findDuplicates = (arr, binarySearch) =>
         reduce(arr, (initial, value, key) => {
-          const filtered = this.filter(this.drop(arr, key + 1), (v) =>
+          const [filtered] = this.filter(this.drop(arr, key + 1), (v) =>
             this.isEqual(value, v)
           );
 
-          if (this.size(filtered) && !this.find(initial, value, binarySearch)) {
-            initial.push(filtered[0]);
+          if (this.isDefined(filtered) && !this.find(initial, value, binarySearch)) {
+            initial.push(filtered);
           }
 
           return initial;
@@ -198,6 +201,8 @@
         return this.size(compact(results)) === 0;
       };
 
+      const uniqueId = () => uniqueIdValue++;
+
       this.mixin({
         reduce,
         reduceRight,
@@ -232,7 +237,8 @@
         greatestCommonDivisor,
         every,
         some,
-        none
+        none,
+        uniqueId
       });
     }
 
@@ -246,6 +252,9 @@
       }
     }
 
+    isBoolean(val) {
+      return typeof val === 'boolean';
+    }
     isNull(val) {
       return val === null;
     }
@@ -346,10 +355,6 @@
       return this.filter(this.times(n + 1), this.isPrime);
     }
 
-    repeat(str, n) {
-      return this.map(this.times(n), () => str).join('');
-    }
-
     flatten(arr) {
       if (this.isEmpty(arr)) {
         return [];
@@ -440,6 +445,30 @@
       return keys;
     }
 
+    values(val) {
+      if (this.isObject(val)) {
+        if (this.isFunction(Object.values)) {
+          return Object.values(val);
+        }
+
+        const values = [];
+        this.forIn(val, (v) => values.push(v));
+        return values;
+      }
+
+      return val;
+    }
+
+    zipObject(a, b) {
+      return this.reduce(a, (memo, val, i) =>
+        this.extend(memo, {[val]: b[i]})
+      , {});
+    }
+
+    invert(obj) {
+      return this.zipObject(this.values(obj), this.keys(obj));
+    }
+
     range(n) {
       const arr = [];
       for (let i = 0; i < n; i++) {
@@ -521,7 +550,11 @@
     }
 
     fill(arr, val) {
-      return this.map(arr, () => val);
+      return this.map(arr, `${val}`);
+    }
+
+    repeat(str, n) {
+      return this.times(n, `${str}`).join('');
     }
 
     partition(arr, predicate) {
@@ -533,6 +566,44 @@
 
     union(a, b) {
       return this.skipDuplicates(this.mergeAndSort(a, b));
+    }
+
+    once(fn) {
+      let done = false;
+      let value;
+      return (...args) => {
+        if (!done) {
+          done = true;
+          value = fn(...args);
+        }
+        return value;
+      };
+    }
+
+    after(n, fn) {
+      let counter = 0;
+      return (...args) => {
+        counter++;
+        if (counter >= n) {
+          return fn(...args);
+        }
+        return this.noop();
+      };
+    }
+
+    before(n, fn) {
+      let counter = 0;
+      return (...args) => {
+        if (counter < n) {
+          counter++;
+          return fn(...args);
+        }
+        return this.noop();
+      };
+    }
+
+    wrap(fn, callback) {
+      return (...args) => callback(fn, ...args);
     }
 
     each(arr, callback) {
@@ -562,7 +633,7 @@
 
         return initial;
       }, {});
-      /* eslint-disable no-param-reassign */
+      /* eslint-enable no-param-reassign */
     }
 
     css(selector, attr) {
@@ -570,7 +641,9 @@
 
       const setStyle = (element) => {
         this.each(this.keys(attr), (prop) => {
+          /* eslint-disable no-param-reassign */
           element.style[prop] = attr[prop];
+          /* eslint-enable no-param-reassign */
         });
       };
 
@@ -661,8 +734,6 @@
     }
 
     find(arr, item, useBinarySearch) {
-      let result;
-
       if (useBinarySearch) {
         return arr[this.binarySearch(arr, item)];
       }
@@ -673,14 +744,12 @@
         );
       }
 
-      for (let i = arr.length - 1; i >= 0; i--) {
-        if (this.isFunction(item) ? item(arr[i]) : arr[i] === item) {
-          result = arr[i];
-          break;
+      return this.reduce(arr, (result, val) => {
+        if (this.isFunction(item) ? item(val) : val === item) {
+          return val;
         }
-      }
-
-      return result;
+        return result;
+      }, undefined);
     }
 
     findKey(obj, item) {
@@ -691,6 +760,18 @@
       return this.reduce(arr, (value, item) => {
         for (const prop in query) {
           if (item[prop] && this.isEqual(item[prop], query[prop])) {
+            value.push(item);
+          }
+        }
+
+        return value;
+      }, []);
+    }
+
+    omit(arr, query) {
+      return this.reduce(arr, (value, item) => {
+        for (const prop in query) {
+          if (!this.isEqual(item[prop], query[prop])) {
             value.push(item);
           }
         }
@@ -796,8 +877,8 @@
       return largest + this.max(this.reject(arr, callback));
     }
 
-    first(arr) {
-      return arr[0];
+    first([first]) {
+      return first;
     }
 
     last(arr) {
@@ -928,7 +1009,6 @@
       return lastItem;
     }
 
-    // TODO: add test
     chain(data) {
       let result = data;
       const methods = {
@@ -960,6 +1040,10 @@
           result = this.pick(result, callback);
           return methods;
         },
+        omit: (callback) => {
+          result = this.omit(result, callback);
+          return methods;
+        },
         flatten: () => {
           result = this.flatten(result);
           return methods;
@@ -968,12 +1052,12 @@
           result = this.first(result);
           return methods;
         },
-        reverse: () => {
-          result = this.reverse(result);
-          return methods;
-        },
         rest: () => {
           result = this.rest(result);
+          return methods;
+        },
+        reverse: () => {
+          result = this.reverse(result);
           return methods;
         },
         drop: (n) => {
@@ -984,6 +1068,10 @@
           result = this.dropRight(result, n);
           return methods;
         },
+        plug: (fn) => {
+          result = fn(result);
+          return methods;
+        },
         value: () => result,
         toJSON: () => JSON.stringify(methods.value())
       };
@@ -991,16 +1079,12 @@
       return methods;
     }
 
-    // TODO: add test
     lazyChain(data) {
-      let result = data;
       const actions = [];
-      const buildData = () => {
-        this.each(actions, ({action, callback}) => {
-          result = this[action](result, callback, result.attributes);
-        });
-        return result;
-      };
+      const buildData = () =>
+        this.reduce(actions, (item, {action, callback, attributes}) =>
+          this[action](item, callback, attributes)
+        , data);
 
       const methods = {
         filter: (callback) => {
@@ -1031,6 +1115,10 @@
           actions.push({action: 'pick', callback});
           return methods;
         },
+        omit: (callback) => {
+          actions.push({action: 'omit', callback});
+          return methods;
+        },
         flatten: () => {
           actions.push({action: 'flatten'});
           return methods;
@@ -1039,12 +1127,12 @@
           actions.push({action: 'first'});
           return methods;
         },
-        reverse: () => {
-          actions.push({action: 'reverse'});
-          return methods;
-        },
         rest: () => {
           actions.push({action: 'rest'});
+          return methods;
+        },
+        reverse: () => {
+          actions.push({action: 'reverse'});
           return methods;
         },
         drop: (n) => {
@@ -1053,6 +1141,10 @@
         },
         dropRight: (n) => {
           actions.push({action: 'dropRight', callback: n});
+          return methods;
+        },
+        plug: (fn) => {
+          actions.push({action: 'callFunctor', callback: fn});
           return methods;
         },
         value: buildData,
@@ -1094,6 +1186,10 @@
           result = this.mean(result, ...args);
           return methods;
         },
+        plug: (fn) => {
+          result = fn(result);
+          return methods;
+        },
         value: () => result
       };
 
@@ -1108,7 +1204,7 @@
         const color = this.random() ? greenOrRed : orangeOrBlue;
         const meow = () => meowOrPurr;
         const randomTimes = this.random(1, this.random(2, 4));
-        const allTheMeows = this.map(this.times(randomTimes), meow).join(' ');
+        const allTheMeows = this.times(randomTimes, meow).join(' ');
         console.log(`%c${allTheMeows}`, `color: ${color}`);
       });
     }
@@ -1142,13 +1238,13 @@
       return {then};
     }
 
-    exportModule(name, func) {
+    exportModule(name, fn) {
       if (typeof module !== 'undefined' && module.exports) {
-        module.exports = func;
+        module.exports = fn;
       }
 
       if (typeof window !== 'undefined') {
-        window[name] = func;
+        window[name] = fn;
       }
 
       if (
@@ -1156,7 +1252,7 @@
           typeof define === 'function' &&
           define.amd
         ) {
-        define([name], func);
+        define([name], fn);
       }
     }
   }

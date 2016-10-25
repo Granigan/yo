@@ -30,7 +30,7 @@ gulp.task('babel', ['lint-src'], () =>
     .on('error', notify.onError('Error: <%= error.message %>'))
 );
 
-gulp.task('test', ['lint-spec', 'babel'], () =>
+gulp.task('test', ['lint-spec'], () =>
   gulp
     .src('spec/**/*.js', {read: false})
     .pipe(plumber())
@@ -44,7 +44,9 @@ gulp.task('todo', () =>
     .pipe(gulp.dest('./'))
 );
 
-gulp.task('default', ['lint-gulp', 'test', 'todo'], () => {
+gulp.task('default', ['lint-gulp', 'lint-src', 'test', 'todo'], () => {
   watch('*.js', () => gulp.run(['lint-gulp']));
-  watch(['src/*.js', 'spec/**/*.js'], () => gulp.run(['test', 'todo']));
+  watch(['src/*.js', 'spec/**/*.js'], () => gulp.run(['lint-src', 'test', 'todo']));
 });
+
+gulp.task('build', ['babel', 'test']);

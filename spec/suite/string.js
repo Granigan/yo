@@ -1,4 +1,4 @@
-const yo = require('../../dist/yo.js');
+const yo = require('../../src/yo.js');
 const expect = require('expect.js');
 
 describe('Strings', () => {
@@ -37,6 +37,7 @@ describe('Strings', () => {
 
   it('Should get words', () => {
     expect(yo.words('hello world')).to.eql(['hello', 'world']);
+    expect(yo.words(() => 'hello world')).to.eql(['hello', 'world']);
   });
 
   it('Should reverse string', () => {

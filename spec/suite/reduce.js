@@ -1,4 +1,4 @@
-const yo = require('../../dist/yo.js');
+const yo = require('../../src/yo.js');
 const expect = require('expect.js');
 
 describe('Reduce', () => {
