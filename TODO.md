@@ -1,6 +1,6 @@
 ### TODOs
 | Filename | line # | TODO
 |:------|:------:|:------
-| yo.js | 68 | add test
-| yo.js | 84 | add test
-| yo.js | 336 | fallback for object comparison
+| yo.js | 69 | add test
+| yo.js | 85 | add test
+| yo.js | 337 | fallback for object comparison

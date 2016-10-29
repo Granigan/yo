@@ -37,6 +37,16 @@ describe('Object', () => {
     expect(yo.invert({a: 1, b: 2, c: 1})).to.eql({1: 'c', 2: 'b'});
   });
 
+  it('Should pair object values', () => {
+    expect(yo.pairs({a: 1, b: 2, c: 3})).to.eql([['a', 1], ['b', 2], ['c', 3]]);
+  });
+
+  it('each should accept object', () => {
+    const results = [];
+    yo.each({hello: 1, world: 2}, () => results.push(true));
+    expect(results).to.eql([true, true]);
+  });
+
   describe('Find', () => {
     it('Should find using matches', () => {
       const value = yo.matches({a: 1, b: 2, c: 3}, {c: 3});

@@ -6,7 +6,6 @@
       let uniqueIdValue = 0;
 
       const reduce = (arr, callback, initialValue) => {
-        let result;
         if (this.isUndefined(arr)) {
           this.error('No array given');
         }
@@ -15,11 +14,13 @@
           return arr.reduce(callback, initialValue);
         }
 
-        this.each(arr, (value) => {
-          result = callback(initialValue, value, arr);
+        this.each(arr, (value, key) => {
+          /* eslint-disable no-param-reassign */
+          initialValue = callback(initialValue, value, key, arr);
+          /* eslint-enable no-param-reassign */
         });
 
-        return result;
+        return initialValue;
       };
 
       const reduceRight = (arr, callback, initialValue) =>
@@ -602,6 +603,10 @@
       };
     }
 
+    pairs(obj) {
+      return this.reduce(obj, (memo, value, key) => memo.concat([[key, value]]), []);
+    }
+
     wrap(fn, callback) {
       return (...args) => callback(fn, ...args);
     }
@@ -609,6 +614,10 @@
     each(arr, callback) {
       if (this.isFunction(arr.forEach)) {
         return arr.forEach(callback);
+      }
+
+      if (this.isObject(arr)) {
+        return this.forIn(arr, callback);
       }
 
       for (let i = 0; i < arr.length; ++i) {

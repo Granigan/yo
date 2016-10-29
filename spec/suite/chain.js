@@ -122,4 +122,8 @@ describe('Chain', () => {
     expect(value).to.eql('hello');
     expect(value2).to.eql(['hello', 'hello', 'hello', 'hello']);
   });
+
+  it('Should have proper amount of methods', () => {
+    expect(yo.size(yo.lazyChain())).to.equal(17);
+  });
 });
