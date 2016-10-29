@@ -292,6 +292,9 @@
     isNumber(val) {
       return typeof val === 'number' && val.constructor === Number;
     }
+    isFloat(val) {
+      return this.isNumber(val) && val === +val && val !== (val | 0);
+    }
     isArray(val) {
       return !this.isNull(val) && val &&
         (Array.isArray ? Array.isArray(val) : val.constructor === Array);
@@ -1201,6 +1204,36 @@
         },
         value: () => result
       };
+
+      return methods;
+    }
+
+    match(data) {
+      const actions = [];
+      const methods = {};
+
+      methods.number = () => {
+        actions.push('isNumber');
+        return methods;
+      };
+      methods.string = () => {
+        actions.push('isString');
+        return methods;
+      };
+      methods.object = () => {
+        actions.push('isObject');
+        return methods;
+      };
+      methods.boolean = () => {
+        actions.push('isBoolean');
+        return methods;
+      };
+      methods.array = () => {
+        actions.push('isArray');
+        return methods;
+      };
+      methods.or = methods;
+      methods.value = () => this.some(actions, (action) => this[action](data));
 
       return methods;
     }

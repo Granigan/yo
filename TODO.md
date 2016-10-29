@@ -3,4 +3,4 @@
 |:------|:------:|:------
 | yo.js | 69 | add test
 | yo.js | 85 | add test
-| yo.js | 337 | fallback for object comparison
+| yo.js | 340 | fallback for object comparison
