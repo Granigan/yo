@@ -5,26 +5,26 @@
     constructor() {
       let uniqueIdValue = 0;
 
-      const reduce = (arr, callback, initialValue) => {
-        if (this.isUndefined(arr)) {
-          this.error('No array given');
+      const reduce = (val, callback, initialValue) => {
+        if (this.isUndefined(val)) {
+          this.error('No value given');
         }
 
-        if (this.isFunction(arr.reduce)) {
-          return arr.reduce(callback, initialValue);
+        if (this.isFunction(val.reduce)) {
+          return val.reduce(callback, initialValue);
         }
 
-        this.each(arr, (value, key) => {
+        this.each(val, (value, key) => {
           /* eslint-disable no-param-reassign */
-          initialValue = callback(initialValue, value, key, arr);
+          initialValue = callback(initialValue, value, key, val);
           /* eslint-enable no-param-reassign */
         });
 
         return initialValue;
       };
 
-      const reduceRight = (arr, callback, initialValue) =>
-        reduce(this.reverse(arr), callback, initialValue);
+      const reduceRight = (val, callback, initialValue) =>
+        reduce(this.reverse(val), callback, initialValue);
 
       const privatePipe = (funcs, args) =>
         reduce(this.rest(funcs), this.callFunctor, this.first(funcs)(...args));
@@ -855,9 +855,25 @@
       return this.size(invalidMethodNames) ? invalidMethodNames : true;
     }
 
+    reverseObject(obj) {
+      const result = [];
+      this.forIn(obj, (value, key) =>
+        result.push({[key]: value})
+      );
+
+      return this.reduce(this.reverse(result), (memo, value) => {
+        const key = this.firstKey(value);
+        return this.extend({}, memo, {[key]: value[key]});
+      }, {});
+    }
+
     reverse(val) {
       if (this.isString(val)) {
         return this.reverse(val.split('')).join('');
+      }
+
+      if (this.isObject(val)) {
+        return this.reverseObject(val);
       }
 
       return val.reverse();
@@ -889,8 +905,20 @@
       return largest + this.max(this.reject(arr, callback));
     }
 
-    first([first]) {
-      return first;
+    firstKey(obj) {
+      return this.first(this.keys(obj));
+    }
+
+    firstValue(obj) {
+      return obj[this.firstKey(obj)];
+    }
+
+    first(val) {
+      if (this.isObject(val)) {
+        return this.firstValue(val);
+      }
+
+      return val[0];
     }
 
     last(arr) {
@@ -1211,29 +1239,33 @@
     match(data) {
       const actions = [];
       const methods = {};
+      const or = methods;
+      const value = () => this.some(actions, (action) => this[action](data));
+      const orAndValue = {or, value};
 
       methods.number = () => {
         actions.push('isNumber');
-        return methods;
+        return orAndValue;
       };
       methods.string = () => {
         actions.push('isString');
-        return methods;
+        return orAndValue;
       };
       methods.object = () => {
         actions.push('isObject');
-        return methods;
+        return orAndValue;
       };
       methods.boolean = () => {
         actions.push('isBoolean');
-        return methods;
+        return orAndValue;
       };
       methods.array = () => {
         actions.push('isArray');
-        return methods;
+        return orAndValue;
       };
-      methods.or = methods;
-      methods.value = () => this.some(actions, (action) => this[action](data));
+
+      methods.or = or;
+      methods.value = value;
 
       return methods;
     }
