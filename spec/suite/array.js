@@ -191,6 +191,13 @@ describe('Array', () => {
     expect(yo.union([1, 2], [50, 0, 3, 4])).to.eql([0, 1, 2, 3, 4, 50]);
   });
 
+  it('Should zip arrays', () => {
+    const value = yo.zip([1, 2, 3], ['a', 'b', 'c'], ['wat', 'yo', 'poop']);
+    expect(value).to.eql([[1, 'a', 'wat'], [2, 'b', 'yo'], [3, 'c', 'poop']]);
+    const value2 = yo.zip([1, 2, 3], ['a', 'b', 'c']);
+    expect(value2).to.eql([[1, 'a'], [2, 'b'], [3, 'c']]);
+  });
+
   describe('Flatten', () => {
     it('Should flatten array', () =>
       expect(yo.flatten([[1, 2, 3], [4, 5, 6]])).to.eql([1, 2, 3, 4, 5, 6]));

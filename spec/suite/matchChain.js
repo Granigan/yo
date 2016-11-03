@@ -50,6 +50,6 @@ describe('match', () => {
   });
 
   it('Should have correct amount of methods', () => {
-    expect(yo.size(yo.match())).to.equal(7);
+    expect(yo.size(yo.match())).to.equal(5);
   });
 });

@@ -41,7 +41,7 @@
         (...args) => privatePipe(this.reverse(funcs), args);
 
       this.arrayToObject = (arr, value = true) => reduce(arr, (obj, key) =>
-        this.extend({}, obj, {[key]: value})
+        this.extend(obj, {[key]: value})
       , {});
 
       this.always = () => true;
@@ -133,11 +133,7 @@
             value + v === targetValue
           );
 
-          if (this.isDefined(filtered)) {
-            initial.push([value, filtered]);
-          }
-
-          return initial;
+          return this.isDefined(filtered) ? [...initial, [value, filtered]] : initial;
         }, []);
 
       const findDuplicates = (arr, binarySearch) =>
@@ -147,7 +143,7 @@
           );
 
           if (this.isDefined(filtered) && !this.find(initial, value, binarySearch)) {
-            initial.push(filtered);
+            return [...initial, filtered];
           }
 
           return initial;
@@ -179,28 +175,28 @@
       };
 
       const getTruthyValuesFromArray = (arr, callback) =>
-        this.map(arr, this.isFunction(callback) ? callback : isTruthy);
+        this.map(arr, callback || isTruthy);
 
       const every = (arr, callback) => {
         if (this.isFunction(arr.every)) {
-          return arr.every(this.isFunction(callback) ? callback : isTruthy);
+          return arr.every(callback || isTruthy);
         }
+
         const results = getTruthyValuesFromArray(arr, callback);
         return this.size(compact(results)) === this.size(arr);
       };
 
       const some = (arr, callback) => {
         if (this.isFunction(arr.some)) {
-          return arr.some(this.isFunction(callback) ? callback : isTruthy);
+          return arr.some(callback || isTruthy);
         }
+
         const results = getTruthyValuesFromArray(arr, callback);
         return this.size(compact(results)) > 0;
       };
 
-      const none = (arr, callback) => {
-        const results = getTruthyValuesFromArray(arr, callback);
-        return this.size(compact(results)) === 0;
-      };
+      const none = (arr, callback) =>
+        this.size(compact(getTruthyValuesFromArray(arr, callback))) === 0;
 
       const uniqueId = () => uniqueIdValue++;
 
@@ -301,21 +297,23 @@
     }
 
     isPrime(n) {
-      let divisor = 2;
-
       if (n <= 1) {
         return false;
       }
 
-      while (n > divisor) {
+      const fn = (divisor) => {
+        if (n <= divisor) {
+          return true;
+        }
+
         if (n % divisor === 0) {
           return false;
         }
 
-        divisor++;
-      }
+        return fn(divisor + 1);
+      };
 
-      return true;
+      return fn(2);
     }
 
     isEqual(a, b) {
@@ -347,9 +345,9 @@
         const aKeys = this.keys(a);
         const bKeys = this.keys(b);
 
-        return this.every(this.map(aKeys, (value, i) =>
+        return this.every(aKeys, (value, i) =>
           value === bKeys[i] && this.isEqual(a[value], b[value])
-        ));
+        );
       }
 
       return false;
@@ -360,11 +358,7 @@
     }
 
     flatten(arr) {
-      if (this.isEmpty(arr)) {
-        return [];
-      }
-
-      return this.reduce(arr, (a, b) =>
+      return this.isEmpty(arr) ? [] : this.reduce(arr, (a, b) =>
         this.merge(a, this.isArray(b) ? this.flatten(b) : b)
       , []);
     }
@@ -463,6 +457,12 @@
       return val;
     }
 
+    zip(...args) {
+      return this.times(this.size(args[0]), i =>
+        this.times(args.length, u => args[u][i])
+      );
+    }
+
     zipObject(a, b) {
       return this.reduce(a, (memo, val, i) =>
         this.extend(memo, {[val]: b[i]})
@@ -474,22 +474,15 @@
     }
 
     range(n) {
-      const arr = [];
-      for (let i = 0; i < n; i++) {
-        arr.push(i);
-      }
-      return arr;
+      const fn = (i) => (i === n - 1 ? [i] : [i, ...fn(i + 1)]);
+      return fn(0);
     }
 
     curry(fn) {
-      const curriedFn = (...args) => {
-        if (args.length < fn.length) {
-          return (...newArgs) =>
-            curriedFn(...args.concat(newArgs));
-        }
-
-        return fn(...args);
-      };
+      const curriedFn = (...args) =>
+        (args.length < fn.length ?
+          (...newArgs) => curriedFn(...this.merge(args, newArgs)) :
+          fn(...args));
 
       return curriedFn;
     }
@@ -541,11 +534,10 @@
 
       return this.reduce(arr, (initial, data, i) => {
         if (this.isFunction(callback)) {
-          initial.push(callback(data, i, arr));
-        } else {
-          initial.push(mapStringValue(data));
+          return [...initial, callback(data, i, arr)];
         }
-        return initial;
+
+        return [...initial, mapStringValue(data)];
       }, []);
     }
 
@@ -588,26 +580,17 @@
       let counter = 0;
       return (...args) => {
         counter++;
-        if (counter >= n) {
-          return fn(...args);
-        }
-        return this.noop();
+        return counter >= n ? fn(...args) : this.noop();
       };
     }
 
     before(n, fn) {
       let counter = 0;
-      return (...args) => {
-        if (counter < n) {
-          counter++;
-          return fn(...args);
-        }
-        return this.noop();
-      };
+      return (...args) => (counter++ < n ? fn(...args) : this.noop());
     }
 
     pairs(obj) {
-      return this.reduce(obj, (memo, value, key) => memo.concat([[key, value]]), []);
+      return this.reduce(obj, (memo, value, key) => [...memo, ...[[key, value]]], []);
     }
 
     wrap(fn, callback) {
@@ -623,11 +606,10 @@
         return this.forIn(arr, callback);
       }
 
-      for (let i = 0; i < arr.length; ++i) {
+      return (function fn(i) {
         callback(arr[i], i, arr);
-      }
-
-      return arr;
+        return i === arr.length - 1 ? arr : fn(i + 1);
+      }(0));
     }
 
     forIn(obj, fn) {
@@ -637,15 +619,15 @@
     }
 
     extend(...args) {
-      /* eslint-disable no-param-reassign */
       return this.reduce(args, (initial, arg) => {
         for (const prop in arg) {
+          /* eslint-disable no-param-reassign */
           initial[prop] = arg[prop];
+          /* eslint-enable no-param-reassign */
         }
 
         return initial;
       }, {});
-      /* eslint-enable no-param-reassign */
     }
 
     css(selector, attr) {
@@ -770,11 +752,11 @@
 
     pick(arr, query) {
       return this.reduce(arr, (value, item) => {
-        for (const prop in query) {
-          if (item[prop] && this.isEqual(item[prop], query[prop])) {
+        this.forIn(query, (val, key) => {
+          if (item[key] && this.isEqual(item[key], val)) {
             value.push(item);
           }
-        }
+        });
 
         return value;
       }, []);
@@ -782,11 +764,11 @@
 
     omit(arr, query) {
       return this.reduce(arr, (value, item) => {
-        for (const prop in query) {
-          if (!this.isEqual(item[prop], query[prop])) {
+        this.forIn(query, (val, key) => {
+          if (!this.isEqual(item[key], val)) {
             value.push(item);
           }
-        }
+        });
 
         return value;
       }, []);
@@ -843,14 +825,9 @@
     }
 
     validateMethodNames(func) {
-      const invalidMethodNames = this.reduce(this.listMethods(func), (value, method) => {
-        const match = this.findKey(this.arrayToObject(this.reservedWords()), method);
-        if (match) {
-          value.push(match);
-        }
-
-        return value;
-      }, []);
+      const invalidMethodNames = this.reduce(this.listMethods(func), (value, method) =>
+        this.compact([...value, this.find(this.reservedWords(), method)])
+      , []);
 
       return this.size(invalidMethodNames) ? invalidMethodNames : true;
     }
@@ -861,10 +838,9 @@
         result.push({[key]: value})
       );
 
-      return this.reduce(this.reverse(result), (memo, value) => {
-        const key = this.firstKey(value);
-        return this.extend({}, memo, {[key]: value[key]});
-      }, {});
+      return this.reduce(this.reverse(result), (memo, value) =>
+        this.extend(memo, value)
+      , {});
     }
 
     reverse(val) {
@@ -915,7 +891,7 @@
 
     first(val) {
       if (this.isObject(val)) {
-        return this.firstValue(val);
+        return {[this.firstKey(val)]: this.firstValue(val)};
       }
 
       return val[0];
@@ -927,11 +903,7 @@
 
     rest(arg) {
       const value = this.slice(arg, 1);
-      if (this.isString(arg)) {
-        return value.join('');
-      }
-
-      return value;
+      return this.isString(arg) ? value.join('') : value;
     }
 
     initial(arr) {
@@ -947,12 +919,7 @@
     }
 
     slice(arr, start, end) {
-      let noEndInSight = end;
-      if (this.isUndefined(end)) {
-        noEndInSight = this.size(arr);
-      }
-
-      return nativeSlice.call(arr, start, noEndInSight);
+      return nativeSlice.call(arr, start, end);
     }
 
     drop(arr, n) {
@@ -960,10 +927,7 @@
     }
 
     dropRight(arr, n) {
-      if (n > arr.length - 1) {
-        return [];
-      }
-      return this.slice(arr, 0, arr.length - n);
+      return n > arr.length - 1 ? [] : this.slice(arr, 0, arr.length - n);
     }
 
     nth(arr, n) {
@@ -1027,12 +991,10 @@
         return arr.filter(callback);
       }
 
-      return this.reduce(arr, (value, item) => {
-        if (callback(item)) {
-          value.push(item);
-        }
-        return value;
-      }, []);
+      return (function fn([head, ...tail]) {
+        const newHead = callback(head) ? [head] : [];
+        return tail.length ? [...newHead, ...(fn(tail, callback))] : newHead;
+      }(arr));
     }
 
     reject(arr, callback) {
@@ -1122,69 +1084,69 @@
     lazyChain(data) {
       const actions = [];
       const buildData = () =>
-        this.reduce(actions, (item, {action, callback, attributes}) =>
-          this[action](item, callback, attributes)
+        this.reduce(actions, (initial, [action, ...args]) =>
+          this[action](initial, ...args)
         , data);
 
       const methods = {
         filter: (callback) => {
-          actions.push({action: 'filter', callback});
+          actions.push(['filter', callback]);
           return methods;
         },
         reject: (callback) => {
-          actions.push({action: 'reject', callback});
+          actions.push(['reject', callback]);
           return methods;
         },
         map: (callback) => {
-          actions.push({action: 'map', callback});
+          actions.push(['map', callback]);
           return methods;
         },
         reduce: (callback, initialValue) => {
-          actions.push({action: 'reduce', callback, attributes: initialValue});
+          actions.push(['reduce', callback, initialValue]);
           return methods;
         },
         find: (callback, useBinarySearch) => {
-          actions.push({action: 'find', callback, attributes: useBinarySearch});
+          actions.push(['find', callback, useBinarySearch]);
           return methods;
         },
         findKey: (callback) => {
-          actions.push({action: 'findKey', callback});
+          actions.push(['findKey', callback]);
           return methods;
         },
         pick: (callback) => {
-          actions.push({action: 'pick', callback});
+          actions.push(['pick', callback]);
           return methods;
         },
         omit: (callback) => {
-          actions.push({action: 'omit', callback});
+          actions.push(['omit', callback]);
           return methods;
         },
         flatten: () => {
-          actions.push({action: 'flatten'});
+          actions.push(['flatten']);
           return methods;
         },
         first: () => {
-          actions.push({action: 'first'});
+          actions.push(['first']);
           return methods;
         },
         rest: () => {
-          actions.push({action: 'rest'});
+          actions.push(['rest']);
           return methods;
         },
         reverse: () => {
-          actions.push({action: 'reverse'});
+          actions.push(['reverse']);
           return methods;
         },
         drop: (n) => {
-          actions.push({action: 'drop', callback: n});
+          actions.push(['drop', n]);
           return methods;
         },
         dropRight: (n) => {
-          actions.push({action: 'dropRight', callback: n});
+          actions.push(['dropRight', n]);
           return methods;
         },
         plug: (fn) => {
-          actions.push({action: 'callFunctor', callback: fn});
+          actions.push(['callFunctor', fn]);
           return methods;
         },
         value: buildData,
@@ -1263,9 +1225,6 @@
         actions.push('isArray');
         return orAndValue;
       };
-
-      methods.or = or;
-      methods.value = value;
 
       return methods;
     }

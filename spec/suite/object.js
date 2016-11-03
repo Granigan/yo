@@ -43,14 +43,14 @@ describe('Object', () => {
 
   it('Should reverse object using reverse', () => {
     expect(yo.reverse({a: 1, b: 2, c: 3})).to.eql({c: 3, b: 2, a: 1});
-    expect(yo.first(yo.reverse({a: 1, b: 2, c: 3}))).to.eql(3);
+    expect(yo.first(yo.reverse({a: 1, b: 2, c: 3}))).to.eql({c: 3});
     expect(yo.firstValue(yo.reverse({a: 1, b: 2, c: 3}))).to.eql(3);
     expect(yo.firstKey(yo.reverse({a: 1, b: 2, c: 3}))).to.eql('c');
   });
 
   it('Should reverse object using reverseObject', () => {
     expect(yo.reverseObject({a: 1, b: 2, c: 3})).to.eql({c: 3, b: 2, a: 1});
-    expect(yo.first(yo.reverseObject({a: 1, b: 2, c: 3}))).to.eql(3);
+    expect(yo.first(yo.reverseObject({a: 1, b: 2, c: 3}))).to.eql({c: 3});
     expect(yo.firstValue(yo.reverseObject({a: 1, b: 2, c: 3}))).to.eql(3);
     expect(yo.firstKey(yo.reverseObject({a: 1, b: 2, c: 3}))).to.eql('c');
   });
@@ -61,7 +61,10 @@ describe('Object', () => {
 
   it('Should get first value', () => {
     expect(yo.firstValue({a: 1, b: 2, c: 3})).to.eql(1);
-    expect(yo.first({a: 1, b: 2, c: 3})).to.eql(1);
+  });
+
+  it('Should get first key&value', () => {
+    expect(yo.first({a: 1, b: 2, c: 3})).to.eql({a: 1});
   });
 
   it('each should accept object', () => {
