@@ -662,15 +662,23 @@
     }
 
     fibonacci(n = 0) {
-      if (n < 1) {
+      if (n < 0) {
         return 0;
       }
 
-      if (n <= 2) {
-        return 1;
-      }
+      const fib = (i) => {
+        if (i === 0) {
+          return [0, 1];
+        }
 
-      return this.fibonacci(n - 1) + this.fibonacci(n - 2);
+        const [a, b] = fib(Math.floor(i / 2));
+        const c = a * (b * 2 - a);
+        const d = a * a + b * b;
+
+        return i % 2 === 0 ? [c, d] : [d, c + d];
+      };
+
+      return this.first(fib(n));
     }
 
     fizzbuzz() {
