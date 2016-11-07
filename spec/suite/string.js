@@ -40,6 +40,28 @@ describe('Strings', () => {
     expect(yo.words(() => 'hello world')).to.eql(['hello', 'world']);
   });
 
+  it('Should split using delimiter', () => {
+    expect(yo.splitBy('hello world', ' ')).to.eql(['hello', 'world']);
+    expect(yo.splitBy('hello world', 'o')).to.eql(['hell', ' w', 'rld']);
+  });
+
+  it('Should get letters', () => {
+    const result = ['h', 'e', 'l', 'l', 'o', 'w', 'o', 'r', 'l', 'd'];
+    expect(yo.letters('hello world')).to.eql(result);
+    expect(yo.letters(() => 'hello world')).to.eql(result);
+  });
+
+  it('Should get every nth letter', () => {
+    const result = ['e', 'l', 'w', 'r', 'd'];
+    expect(yo.everyNthLetter('hello world', 2)).to.eql(result);
+    expect(yo.everyNthLetter(() => 'hello world', 2)).to.eql(result);
+  });
+
+  it('Should get every nth word', () => {
+    expect(yo.everyNthWord('hello world', 2)).to.eql(['world']);
+    expect(yo.everyNthWord(() => 'hello world', 2)).to.eql(['world']);
+  });
+
   it('Should reverse string', () => {
     expect(yo.reverse('hello world')).to.equal('dlrow olleh');
   });

@@ -326,7 +326,7 @@
           return false;
         }
 
-        return this.every(this.map(a, (value, i) => value === b[i]));
+        return this.every(a, (value, i) => this.isEqual(value, b[i]));
       }
 
       if (this.isObject(a) && this.isObject(b)) {
@@ -449,9 +449,9 @@
           return Object.values(val);
         }
 
-        const values = [];
-        this.forIn(val, (v) => values.push(v));
-        return values;
+        return this.reduce(val, (initial, v) =>
+          [...initial, v]
+        , []);
       }
 
       return val;
@@ -555,9 +555,13 @@
 
     partition(arr, predicate) {
       return this.reduce(arr, (initial, val) => {
-        initial[(predicate(val) ? 0 : 1)].push(val);
+        initial[this.booleanToInt(!predicate(val))].push(val);
         return initial;
       }, [[], []]);
+    }
+
+    booleanToInt(val) {
+      return val | 0;
     }
 
     union(a, b) {
@@ -577,11 +581,8 @@
     }
 
     after(n, fn) {
-      let counter = 0;
-      return (...args) => {
-        counter++;
-        return counter >= n ? fn(...args) : this.noop();
-      };
+      let counter = 1;
+      return (...args) => (counter++ >= n ? fn(...args) : this.noop());
     }
 
     before(n, fn) {
@@ -590,7 +591,7 @@
     }
 
     pairs(obj) {
-      return this.reduce(obj, (memo, value, key) => [...memo, ...[[key, value]]], []);
+      return this.reduce(obj, (memo, value, key) => [...memo, [key, value]], []);
     }
 
     wrap(fn, callback) {
@@ -614,7 +615,7 @@
 
     forIn(obj, fn) {
       for (const key in obj) {
-        fn(obj[key], key);
+        fn(obj[key], key, obj);
       }
     }
 
@@ -705,14 +706,12 @@
 
     smallFizzbuzz() {
       /* eslint-disable */
-      let i=0;for(;100>i++;)console.log((i%3?'':'Fizz')+(i%5?'':'Buzz')||i);
+      this.times(101,i=>console.log((i%3?'':'Fizz')+(i%5?'':'Buzz')||i));
       /* eslint-enable */
     }
 
     listMethods(func) {
-      return this.filter(this.keys(func || this), (method) =>
-        this.negate(this.isFunction)(method)
-      );
+      return this.reject(this.keys(func || this), this.isFunction);
     }
 
     reservedWords() {
@@ -828,8 +827,17 @@
       return this.size(this.words(str));
     }
 
-    words(str) {
-      return (this.isFunction(str) ? str() : str).split(' ');
+    splitBy(val, delimiter) {
+      return (this.isFunction(val) ? val() : val).split(delimiter);
+    }
+
+    words(val) {
+      return this.splitBy(val, ' ');
+    }
+
+    letters(val) {
+      const delimiterPattern = /\.| |,|!|\?|:|;|-|_/g;
+      return this.reject(this.splitBy(val, ''), (str) => str.match(delimiterPattern));
     }
 
     validateMethodNames(func) {
@@ -841,10 +849,9 @@
     }
 
     reverseObject(obj) {
-      const result = [];
-      this.forIn(obj, (value, key) =>
-        result.push({[key]: value})
-      );
+      const result = this.reduce(obj, (initial, value, key) =>
+        [...initial, {[key]: value}]
+      , []);
 
       return this.reduce(this.reverse(result), (memo, value) =>
         this.extend(memo, value)
@@ -942,6 +949,18 @@
       return arr[n];
     }
 
+    everyNth(arr, n) {
+      return this.filter(arr, (val, i) => (i + 1) % n === 0);
+    }
+
+    everyNthWord(val, n) {
+      return this.everyNth(this.words(val), n);
+    }
+
+    everyNthLetter(val, n) {
+      return this.everyNth(this.letters(val), n);
+    }
+
     nthArg(n) {
       return (...args) => this.nth(args, n);
     }
@@ -999,10 +1018,10 @@
         return arr.filter(callback);
       }
 
-      return (function fn([head, ...tail]) {
-        const newHead = callback(head) ? [head] : [];
-        return tail.length ? [...newHead, ...(fn(tail, callback))] : newHead;
-      }(arr));
+      return (function fn(i, [head, ...tail]) {
+        const newHead = callback(head, i, arr) ? [head] : [];
+        return tail.length ? [...newHead, ...(fn(i + 1, tail))] : newHead;
+      }(0, arr));
     }
 
     reject(arr, callback) {

@@ -191,6 +191,11 @@ describe('Array', () => {
     expect(yo.union([1, 2], [50, 0, 3, 4])).to.eql([0, 1, 2, 3, 4, 50]);
   });
 
+  it('Should get every nth value', () => {
+    expect(yo.everyNth([1, 2, 3, 4], 2)).to.eql([2, 4]);
+    expect(yo.everyNth([1, 2, 3, 4], 3)).to.eql([3]);
+  });
+
   it('Should zip arrays', () => {
     const value = yo.zip([1, 2, 3], ['a', 'b', 'c'], ['wat', 'yo', 'poop']);
     expect(value).to.eql([[1, 'a', 'wat'], [2, 'b', 'yo'], [3, 'c', 'poop']]);

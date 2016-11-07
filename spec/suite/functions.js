@@ -134,6 +134,11 @@ describe('Misc functions', () => {
     expect(yay()).to.equal(undefined);
   });
 
+  it('Should convert boolean to integer', () => {
+    expect(yo.booleanToInt(true)).to.eql(1);
+    expect(yo.booleanToInt(false)).to.eql(0);
+  });
+
   it('Should wrap', () => {
     const yay = yo.wrap(yo.passthru, (func, text) => `<p>${func(text)}</p>`);
     expect(yay('hello')).to.equal('<p>hello</p>');
