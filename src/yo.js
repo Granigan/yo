@@ -115,16 +115,18 @@
           this.slice(arr, (i * size), (i * size + size)));
       };
 
-      const merge = (a, b) => [].concat(a, b);
+      const concat = (head, ...rest) => [].concat(head, ...rest);
+      // TODO: merge should be refactored to merge objects, not arrays
+      const merge = (a, b) => this.concat(a, b);
       const clone = (a) => [...a];
       const mergeAndSort = (a, b) => merge(a, b).sort((c, d) => c - d);
       const duplicate = (arr) => merge(arr, arr);
 
       const findLargestSubArrayBySum = (arrays) => {
         const maxes = this.map(arrays, (arr) => sum(...arr));
-        const max = this.max(...maxes);
-        const index = this.indexOf(maxes, max);
-        return {index, item: arrays[index], value: max};
+        const value = this.max(...maxes);
+        const index = this.indexOf(maxes, value);
+        return {index, item: arrays[index], value};
       };
 
       const findPairsBySum = (arr, targetValue) =>
@@ -223,6 +225,7 @@
         isFalsey,
         isTruthy,
         chunk,
+        concat,
         merge,
         clone,
         mergeAndSort,
@@ -449,9 +452,7 @@
           return Object.values(val);
         }
 
-        return this.reduce(val, (initial, v) =>
-          [...initial, v]
-        , []);
+        return this.reduce(val, (initial, v) => [...initial, v], []);
       }
 
       return val;
@@ -620,6 +621,10 @@
     }
 
     extend(...args) {
+      if (this.isFunction(Object.assign)) {
+        return Object.assign(...args);
+      }
+
       return this.reduce(args, (initial, arg) => {
         for (const prop in arg) {
           /* eslint-disable no-param-reassign */
@@ -858,6 +863,22 @@
       , {});
     }
 
+    permutations(arr) {
+      if (this.isEmpty(arr)) {
+        return [[]];
+      }
+
+      const [head, ...tail] = arr;
+
+      return this.reduce(this.permutations(tail), (initial, value) => {
+        const result = this.times(this.size(arr), (i) =>
+          this.splice(value, i, 0, head)
+        );
+
+        return [...initial, ...result];
+      }, []);
+    }
+
     reverse(val) {
       if (this.isString(val)) {
         return this.reverse(val.split('')).join('');
@@ -904,20 +925,28 @@
       return obj[this.firstKey(obj)];
     }
 
+    previous(arr, n) {
+      return this.nth(arr, n - 1);
+    }
+
+    next(arr, n) {
+      return this.nth(arr, n + 1);
+    }
+
     first(val) {
       if (this.isObject(val)) {
         return {[this.firstKey(val)]: this.firstValue(val)};
       }
 
-      return val[0];
+      return this.nth(val, 0);
     }
 
     last(arr) {
-      return arr[arr.length - 1];
+      return this.nth(arr, arr.length - 1);
     }
 
     rest(arg) {
-      const value = this.slice(arg, 1);
+      const [, ...value] = arg;
       return this.isString(arg) ? value.join('') : value;
     }
 
@@ -935,6 +964,12 @@
 
     slice(arr, start, end) {
       return nativeSlice.call(arr, start, end);
+    }
+
+    splice(arr, ...args) {
+      const clone = this.clone(arr);
+      clone.splice(...args);
+      return clone;
     }
 
     drop(arr, n) {
@@ -999,6 +1034,10 @@
 
     lte(a, b) {
       return a <= b;
+    }
+
+    between(a, b, val) {
+      return this.gte(val, a) && this.lte(val, b);
     }
 
     indexOf(arr, value, fromIndex) {

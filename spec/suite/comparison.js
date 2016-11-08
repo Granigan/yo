@@ -26,6 +26,14 @@ describe('Comparison', () => {
     expect(yo.gte(1, 0)).to.eql(true);
   });
 
+  it('Should compare between', () => {
+    expect(yo.between(1, 10, 50)).to.eql(false);
+    expect(yo.between(1, 10, 0)).to.eql(false);
+    expect(yo.between(1, 10, 5)).to.eql(true);
+    expect(yo.between(1, 10, 1)).to.eql(true);
+    expect(yo.between(1, 10, 10)).to.eql(true);
+  });
+
   it('Should compare using isEqual', () => {
     expect(yo.isEqual(1, 1)).to.eql(true);
     expect(yo.isEqual(1, 0)).to.eql(false);

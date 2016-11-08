@@ -95,6 +95,23 @@ describe('Array', () => {
     expect(yo.nth([1, 2, 3], 3)).to.equal(undefined);
   });
 
+  it('Should return previous item from array', () => {
+    expect(yo.previous([0, 1, 2, 3], 0)).to.equal(undefined);
+    expect(yo.previous([0, 1, 2, 3], 1)).to.equal(0);
+    expect(yo.previous([0, 1, 2, 3], 2)).to.equal(1);
+    expect(yo.previous([0, 1, 2, 3], 3)).to.equal(2);
+    expect(yo.previous([0, 1, 2, 3], 4)).to.equal(3);
+    expect(yo.previous([0, 1, 2, 3], 5)).to.equal(undefined);
+  });
+
+  it('Should return next item from array', () => {
+    expect(yo.next([1, 2, 3], -1)).to.equal(1);
+    expect(yo.next([1, 2, 3], 0)).to.equal(2);
+    expect(yo.next([1, 2, 3], 1)).to.equal(3);
+    expect(yo.next([1, 2, 3], 2)).to.equal(undefined);
+    expect(yo.next([1, 2, 3], 3)).to.equal(undefined);
+  });
+
   it('Should return index of array', () => {
     expect(yo.indexOf([1, 2, 3], 3)).to.equal(2);
     expect(yo.indexOf([1, 2, 3], 4)).to.equal(-1);
@@ -154,8 +171,36 @@ describe('Array', () => {
     expect(yo.clone([1, 2, 3])).to.eql([1, 2, 3]);
   });
 
+  it('Should concat multiple values to an array', () => {
+    const arr = [1];
+    expect(yo.concat(arr, 2, [3], [[4]])).to.eql([1, 2, 3, [4]]);
+    expect(arr).to.eql([1]);
+  });
+
+  it('Should splice array', () => {
+    const arr = [1, 2];
+    expect(yo.splice(arr, 0, 1, 'hello')).to.eql(['hello', 2]);
+    expect(yo.splice(arr, 0, 1)).to.eql([2]);
+    expect(yo.splice(arr, 0, 0)).to.eql([1, 2]);
+    expect(yo.splice(arr, 0, 0, 'hello')).to.eql(['hello', 1, 2]);
+    expect(arr).to.eql([1, 2]);
+  });
+
   it('Should merge two arrays', () => {
     expect(yo.merge([1, 2, 3], [4, 5])).to.eql([1, 2, 3, 4, 5]);
+  });
+
+  it('Should create permutations', () => {
+    const result = [
+      ['a', 'b', 1],
+      ['b', 'a', 1],
+      ['b', 1, 'a'],
+      ['a', 1, 'b'],
+      [1, 'a', 'b'],
+      [1, 'b', 'a']
+    ];
+
+    expect(yo.permutations(['a', 'b', 1])).to.eql(result);
   });
 
   it('Should merge and sort two arrays', () => {
