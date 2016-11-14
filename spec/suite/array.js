@@ -119,6 +119,10 @@ describe('Array', () => {
     expect(yo.indexOf([1, 2, 3], 3, 1)).to.equal(1);
   });
 
+  it('Should get array diff', () => {
+    expect(yo.difference([1, 2, 3, 7], [3, 2, 1, 4, 5])).to.eql([7, 4, 5]);
+  });
+
   it('Should be able to filter an array', () => {
     const values = [1, 2, 3, 3, 4, 2];
     expect(yo.filter(values, (i) => i === 3)).to.eql([3, 3]);
@@ -232,8 +236,9 @@ describe('Array', () => {
   });
 
   it('Should union two arrays', () => {
-    expect(yo.union([1, 2], [3, 4])).to.eql([1, 2, 3, 4]);
-    expect(yo.union([1, 2], [50, 0, 3, 4])).to.eql([0, 1, 2, 3, 4, 50]);
+    expect(yo.union([1, 2], [3, 3, 4])).to.eql([1, 2, 3, 4]);
+    expect(yo.union([1, 2], [50, 0, 3, 4])).to.eql([1, 2, 50, 0, 3, 4]);
+    expect(yo.union([2], [1, 2])).to.eql([2, 1]);
   });
 
   it('Should get every nth value', () => {

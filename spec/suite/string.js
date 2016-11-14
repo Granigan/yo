@@ -78,4 +78,12 @@ describe('Strings', () => {
     expect(yo.repeat('hello', 2)).to.equal('hellohello');
     expect(yo.repeat('hello', 3)).to.equal('hellohellohello');
   });
+
+  it('Should trim string', () => {
+    expect(yo.trim(' hello ')).to.equal('hello');
+  });
+
+  it('Should remove substrings', () => {
+    expect(yo.removeSubstrings('ccdaabcdbb', 'ab,cd')).to.equal('cb');
+  });
 });

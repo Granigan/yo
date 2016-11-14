@@ -517,6 +517,12 @@
       return this.first(this.shuffle(arr));
     }
 
+    difference(a, b) {
+      return this.reject(this.concat(a, b), (val) =>
+        this.contains(a, val) && this.contains(b, val)
+      );
+    }
+
     map(arr, callback) {
       if (!this.isArray(arr)) {
         return [arr];
@@ -566,7 +572,7 @@
     }
 
     union(a, b) {
-      return this.skipDuplicates(this.mergeAndSort(a, b));
+      return this.skipDuplicates(this.merge(a, b));
     }
 
     once(fn) {
@@ -717,6 +723,10 @@
 
     listMethods(func) {
       return this.reject(this.keys(func || this), this.isFunction);
+    }
+
+    methodCount(func) {
+      return this.size(this.listMethods(func));
     }
 
     reservedWords() {
@@ -1075,6 +1085,21 @@
       }
 
       return lastItem;
+    }
+
+    trim(str) {
+      return str.trim();
+    }
+
+    removeSubstrings(str, substrings) {
+      const subs = this.isString(substrings) ?
+        this.map(substrings.split(','), this.trim) :
+        substrings;
+
+      return this.reduce(subs, (initial, sub) => {
+        const value = initial.replace(...subs, '');
+        return value.match(sub) ? this.removeSubstrings(value, sub) : value;
+      }, str.replace(...this.reverse(subs), ''));
     }
 
     chain(data) {

@@ -216,4 +216,8 @@ describe('Misc functions', () => {
       expect(yo.lastArg(1, 2, 3, 4)).to.equal(4);
     });
   });
+
+  it('Should return method count', () => {
+    expect(yo.methodCount()).to.eql(170);
+  });
 });
