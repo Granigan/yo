@@ -119,8 +119,8 @@
       // TODO: merge should be refactored to merge objects, not arrays
       const merge = (a, b) => this.concat(a, b);
       const clone = (a) => [...a];
-      const mergeAndSort = (a, b) => merge(a, b).sort((c, d) => c - d);
-      const duplicate = (arr) => merge(arr, arr);
+      const mergeAndSort = (a, b) => concat(a, b).sort((c, d) => c - d);
+      const duplicate = (arr) => concat(arr, arr);
 
       const findLargestSubArrayBySum = (arrays) => {
         const maxes = this.map(arrays, (arr) => sum(...arr));
@@ -362,7 +362,7 @@
 
     flatten(arr) {
       return this.isEmpty(arr) ? [] : this.reduce(arr, (a, b) =>
-        this.merge(a, this.isArray(b) ? this.flatten(b) : b)
+        this.concat(a, this.isArray(b) ? this.flatten(b) : b)
       , []);
     }
 
@@ -437,7 +437,7 @@
       if (obj === this) {
         const prototypeKeys = Object.getOwnPropertyNames(Object.getPrototypeOf(obj));
         const ownPropertyNames = Object.getOwnPropertyNames(obj);
-        const keys = this.merge(ownPropertyNames, prototypeKeys);
+        const keys = this.concat(ownPropertyNames, prototypeKeys);
         return this.filter(keys, (key) => key !== 'constructor');
       }
 
@@ -482,7 +482,7 @@
     curry(fn) {
       const curriedFn = (...args) =>
         (args.length < fn.length ?
-          (...newArgs) => curriedFn(...this.merge(args, newArgs)) :
+          (...newArgs) => curriedFn(...this.concat(args, newArgs)) :
           fn(...args));
 
       return curriedFn;
@@ -572,7 +572,7 @@
     }
 
     union(a, b) {
-      return this.skipDuplicates(this.merge(a, b));
+      return this.skipDuplicates(this.concat(a, b));
     }
 
     once(fn) {
@@ -879,9 +879,10 @@
       }
 
       const [head, ...tail] = arr;
+      const arrSize = this.size(arr);
 
       return this.reduce(this.permutations(tail), (initial, value) => {
-        const result = this.times(this.size(arr), (i) =>
+        const result = this.times(arrSize, (i) =>
           this.splice(value, i, 0, head)
         );
 
