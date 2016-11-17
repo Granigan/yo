@@ -64,7 +64,7 @@
       const mean = (...args) => divide(sum(...args), args.length);
       const factorial = (n) => reduce(this.rest(times(n + 1)), multiply, 1);
       const isEven = (n) => n % 2 === 0;
-      const isOdd = (n) => !isEven(n);
+      const isOdd = this.negate(isEven);
 
       // TODO: add test
       const debounce = (fn, delay = 0) => {
@@ -100,7 +100,7 @@
       };
 
       const isFalsey = (arg) => !arg;
-      const isTruthy = (arg) => !isFalsey(arg);
+      const isTruthy = this.negate(isFalsey);
       const compact = (arr) => this.filter(arr, isTruthy);
 
       const matches = (obj, props) =>
@@ -156,15 +156,9 @@
 
         return reduce(arr, (initial, value) => {
           const inDuplicates = this.find(duplicates, value, binarySearch);
-          if (inDuplicates && !this.find(initial, value, binarySearch)) {
-            initial.push(value);
-          }
-
-          if (!inDuplicates) {
-            initial.push(value);
-          }
-
-          return initial;
+          const notFound = inDuplicates && !this.find(initial, value, binarySearch);
+          const unique = !inDuplicates || notFound;
+          return unique ? [...initial, value] : initial;
         }, []);
       };
 
@@ -304,7 +298,7 @@
         return false;
       }
 
-      const fn = (divisor) => {
+      return (function fn(divisor) {
         if (n <= divisor) {
           return true;
         }
@@ -314,9 +308,7 @@
         }
 
         return fn(divisor + 1);
-      };
-
-      return fn(2);
+      }(2));
     }
 
     isEqual(a, b) {
@@ -441,6 +433,10 @@
         return this.filter(keys, (key) => key !== 'constructor');
       }
 
+      if (this.isFunction(Object.keys)) {
+        return Object.keys(obj);
+      }
+
       const keys = [];
       this.forIn(obj, (val, key) => keys.push(key));
       return keys;
@@ -480,12 +476,11 @@
     }
 
     curry(fn) {
-      const curriedFn = (...args) =>
-        (args.length < fn.length ?
-          (...newArgs) => curriedFn(...this.concat(args, newArgs)) :
-          fn(...args));
-
-      return curriedFn;
+      return function curriedFn(...args) {
+        return args.length < fn.length ?
+          (...newArgs) => curriedFn(...[...args, ...newArgs]) :
+          fn(...args);
+      };
     }
 
     get(obj, path) {
@@ -494,27 +489,27 @@
     }
 
     shuffle(arr) {
-      const newArr = this.clone(arr);
-      let currentIndex = newArr.length;
+      const result = (function fn(i, data) {
+        const randomIndex = Math.floor(Math.random() * i);
+        const temporaryValue = data[i];
 
-      while (currentIndex !== 0) {
-        const randomIndex = Math.floor(Math.random() * currentIndex);
-        currentIndex -= 1;
+        /* eslint-disable no-param-reassign */
+        data[i] = data[randomIndex];
+        data[randomIndex] = temporaryValue;
+        /* eslint-enable no-param-reassign */
 
-        const temporaryValue = newArr[currentIndex];
-        newArr[currentIndex] = newArr[randomIndex];
-        newArr[randomIndex] = temporaryValue;
-      }
+        return i ? fn(i - 1, data) : data;
+      }(arr.length - 1, this.clone(arr)));
 
-      if (this.isEqual(arr, newArr)) {
-        return this.shuffle(arr);
-      }
-
-      return newArr;
+      return this.isEqual(arr, result) ? this.shuffle(arr) : result;
     }
 
     sample(arr) {
       return this.first(this.shuffle(arr));
+    }
+
+    sampleSize(arr, n = 1) {
+      return this.slice(this.shuffle(arr), 0, n);
     }
 
     difference(a, b) {
@@ -556,8 +551,8 @@
       return this.map(arr, `${val}`);
     }
 
-    repeat(str, n) {
-      return this.times(n, `${str}`).join('');
+    repeat(str, n, delimiter = '') {
+      return this.times(n, `${str}`).join(delimiter);
     }
 
     partition(arr, predicate) {
@@ -589,20 +584,24 @@
 
     after(n, fn) {
       let counter = 1;
-      return (...args) => (counter++ >= n ? fn(...args) : this.noop());
+      return (...args) => (counter++ >= n ? fn : this.noop)(...args);
     }
 
     before(n, fn) {
       let counter = 0;
-      return (...args) => (counter++ < n ? fn(...args) : this.noop());
+      return (...args) => (counter++ < n ? fn : this.noop)(...args);
     }
 
     pairs(obj) {
-      return this.reduce(obj, (memo, value, key) => [...memo, [key, value]], []);
+      return this.zip(this.keys(obj), this.values(obj));
     }
 
     wrap(fn, callback) {
       return (...args) => callback(fn, ...args);
+    }
+
+    parseInt(n, radix = 10) {
+      return parseInt(n, radix);
     }
 
     each(arr, callback) {
@@ -621,9 +620,7 @@
     }
 
     forIn(obj, fn) {
-      for (const key in obj) {
-        fn(obj[key], key, obj);
-      }
+      this.each(this.keys(obj), (key) => fn(obj[key], key, obj));
     }
 
     extend(...args) {
@@ -760,12 +757,9 @@
         );
       }
 
-      return this.reduce(arr, (result, val) => {
-        if (this.isFunction(item) ? item(val) : val === item) {
-          return val;
-        }
-        return result;
-      }, undefined);
+      return this.reduce(arr, (result, val) =>
+        ((this.isFunction(item) ? item(val) : val === item) ? val : result)
+      , undefined);
     }
 
     findKey(obj, item) {
@@ -882,10 +876,7 @@
       const arrSize = this.size(arr);
 
       return this.reduce(this.permutations(tail), (initial, value) => {
-        const result = this.times(arrSize, (i) =>
-          this.splice(value, i, 0, head)
-        );
-
+        const result = this.times(arrSize, (i) => this.splice(value, i, 0, head));
         return [...initial, ...result];
       }, []);
     }

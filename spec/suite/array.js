@@ -229,6 +229,21 @@ describe('Array', () => {
   it('Should sample array', () => {
     expect(yo.sample([1, 2, 3])).not.to.eql([1, 2, 3]);
     expect(yo.sample([1, 2, 3])).to.be.an('number');
+
+    yo.times(50, () => expect(yo.sample([1, 2, 3])).to.be.an('number'));
+  });
+
+  it('Should sampleSize array', () => {
+    expect(yo.sampleSize([1, 2, 3])).not.to.eql([1, 2, 3]);
+    expect(yo.sampleSize([1, 2, 3])).to.have.length(1);
+    expect(yo.sampleSize([1, 2, 3])).to.be.an('array');
+    expect(yo.sampleSize([1, 2, 3], 2)).not.to.eql([1, 2, 3]);
+    expect(yo.sampleSize([1, 2, 3], 2)).to.have.length(2);
+    expect(yo.sampleSize([1, 2, 3], 2)).to.be.an('array');
+
+    yo.times(50, () => expect(yo.sampleSize([1, 2, 3])).to.be.an('array'));
+    yo.times(50, () => expect(yo.sampleSize([1, 2, 3], 2)).to.be.an('array'));
+    yo.times(50, () => expect(yo.sampleSize([1, 2, 3], 2)).to.have.length(2));
   });
 
   it('Should partition array', () => {

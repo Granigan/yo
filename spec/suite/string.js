@@ -77,6 +77,7 @@ describe('Strings', () => {
   it('Should repeat a word', () => {
     expect(yo.repeat('hello', 2)).to.equal('hellohello');
     expect(yo.repeat('hello', 3)).to.equal('hellohellohello');
+    expect(yo.repeat('hello', 3, '-')).to.equal('hello-hello-hello');
   });
 
   it('Should trim string', () => {

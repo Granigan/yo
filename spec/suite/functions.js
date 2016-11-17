@@ -64,6 +64,27 @@ describe('Misc functions', () => {
     expect(yo.missingNumber([5, 2, 6, 1, 3])).to.equal(4);
   });
 
+  it('Should parse integer', () => {
+    expect(yo.parseInt(100.1)).to.equal(100);
+    expect(yo.parseInt(100)).to.equal(100);
+    expect(yo.parseInt('100.1')).to.equal(100);
+    expect(yo.parseInt('100')).to.equal(100);
+    expect(yo.parseInt(' 0xF', 16)).to.equal(15);
+    expect(yo.parseInt(' F', 16)).to.equal(15);
+    expect(yo.parseInt('17', 8)).to.equal(15);
+    expect(yo.parseInt('015', 10)).to.equal(15);
+    expect(yo.parseInt(15.99, 10)).to.equal(15);
+    expect(yo.parseInt('15,123', 10)).to.equal(15);
+    expect(yo.parseInt('FXX123', 16)).to.equal(15);
+    expect(yo.parseInt('1111', 2)).to.equal(15);
+    expect(yo.parseInt('15*3', 10)).to.equal(15);
+    expect(yo.parseInt('15e2', 10)).to.equal(15);
+    expect(yo.parseInt('15px', 10)).to.equal(15);
+    expect(yo.parseInt('12', 13)).to.equal(15);
+    expect(isNaN(yo.parseInt('hello', 8))).to.equal(true);
+    expect(isNaN(yo.parseInt('546', 2))).to.equal(true);
+  });
+
   it('Should add new method with mixin', () => {
     const currentMethodCount = yo.listMethods().length;
     yo.mixin({hello: () => 1});
@@ -218,6 +239,6 @@ describe('Misc functions', () => {
   });
 
   it('Should return method count', () => {
-    expect(yo.methodCount()).to.eql(170);
+    expect(yo.methodCount()).to.eql(172);
   });
 });
