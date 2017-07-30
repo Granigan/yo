@@ -625,7 +625,7 @@
 
     extend(...args) {
       if (this.isFunction(Object.assign)) {
-        return Object.assign(...args);
+        return Object.assign({}, ...args);
       }
 
       return this.reduce(args, (initial, arg) => {
