@@ -85,14 +85,6 @@ describe('Misc functions', () => {
     expect(isNaN(yo.parseInt('546', 2))).to.equal(true);
   });
 
-  it('Should add new method with mixin', () => {
-    const currentMethodCount = yo.listMethods().length;
-    yo.mixin({hello: () => 1});
-    const newMethodCount = yo.listMethods().length;
-    expect(yo.hello).to.be.an('function');
-    expect(currentMethodCount).not.to.equal(newMethodCount);
-  });
-
   it('Should have proper functionality on every', () => {
     expect(yo.every([1, 2, true, 'string'])).to.equal(true);
     expect(yo.every([1, 2, true, 'string'], yo.isTruthy)).to.equal(true);
