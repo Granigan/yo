@@ -1,4 +1,5 @@
 import {isFunction, isObject} from './is';
+import {pipe} from './function';
 import {first, reduce, reverse, compact, reject, size} from './array';
 
 export const forIn = (obj, fn) => {
@@ -29,7 +30,7 @@ export const values = (val) => {
   return val;
 };
 
-export const firstKey = obj => first(keys(obj));
+export const firstKey = pipe(first, keys);
 
 export const firstValue = obj => obj[firstKey(obj)];
 
@@ -81,5 +82,4 @@ export const arrayToObject = (arr, value = true) => reduce(arr, (obj, key) =>
 export const listMethods = func =>
   reject(keys(func), isFunction);
 
-export const methodCount = func =>
-  size(listMethods(func));
+export const methodCount = pipe(size, listMethods);

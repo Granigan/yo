@@ -19,7 +19,7 @@ import {
   get
 } from './object';
 import {max, sum} from './math';
-import {negate, booleanToInt} from './function';
+import {negate, booleanToInt, pipe} from './function';
 
 const nativeSlice = Array.prototype.slice;
 
@@ -39,13 +39,10 @@ export const previous = (arr, n) => nth(arr, n - 1);
 
 export const next = (arr, n) => nth(arr, n + 1);
 
-export const first = (val) => {
-  if (isObject(val)) {
-    return {[firstKey(val)]: firstValue(val)};
-  }
-
-  return nth(val, 0);
-};
+export const first = (val) =>
+  (isObject(val) ?
+    {[firstKey(val)]: firstValue(val)} :
+    nth(val, 0));
 
 export const last = arr => nth(arr, arr.length - 1);
 
@@ -114,8 +111,7 @@ export const map = (arr, callback) => {
   }, []);
 };
 
-export const concat = arg =>
-  [].concat(arg, rest(arg));
+export const concat = arg => [].concat(arg, rest(arg));
 
 export const range = (n) => {
   const fn = i => (i === n - 1 ? [i] : [i, ...fn(i + 1)]);
@@ -191,7 +187,7 @@ export const shuffle = (arr) => {
   return isEqual(arr, result) ? shuffle(arr) : result;
 };
 
-export const sample = arr => first(shuffle(arr));
+export const sample = pipe(first, shuffle);
 
 export const sampleSize = (arr, n = 1) => slice(shuffle(arr), 0, n);
 
@@ -333,7 +329,7 @@ export const where = (arr, props) =>
   filter(arr, entry => matches(entry, props));
 
 const getTruthyValuesFromArray = (arr, callback) =>
-        map(arr, callback || isTruthy);
+  map(arr, callback || isTruthy);
 
 export const every = (arr, callback) => {
   if (isFunction(arr.every)) {
