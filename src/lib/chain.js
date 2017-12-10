@@ -9,9 +9,11 @@ import {
   rest,
   reverse,
   drop,
-  dropRight
+  dropRight,
+  pick,
+  omit
 } from './array';
-import {findKey, pick, omit} from './object';
+import {findKey} from './object';
 
 export default (data) => {
   let result = data;

@@ -346,3 +346,24 @@ export default {
   factorial,
   primeNumbers
 };
+
+export const fizzbuzz = () =>
+  chain(range(101))
+    .rest()
+    .map((i) => {
+      const fizz = 'Fizz';
+      const buzz = 'Buzz';
+      const three = i % 3 === 0;
+      const five = i % 5 === 0;
+
+      if (three && five) {
+        return fizz + buzz;
+      } else if (three) {
+        return fizz;
+      } else if (five) {
+        return buzz;
+      }
+
+      return i;
+    })
+    .value();

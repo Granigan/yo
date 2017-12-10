@@ -1,7 +1,6 @@
 import {negate} from './function';
-import {keys} from './object';
 import {size, reverse, every} from './array';
-import {lowercase} from './string';
+import {keys} from './helper';
 
 export const isEven = n => n % 2 === 0;
 export const isOdd = negate(isEven);
@@ -28,7 +27,7 @@ export const isObject = val =>
 export const isFunction = val => typeof val === 'function';
 
 export const isEmpty = val =>
-  isUndefined(val) || val === 0 || size(val) === 0;
+  isUndefined(val) || !val || size(val) === 0;
 
 export const isNumber = val => typeof val === 'number' && val.constructor === Number;
 
@@ -44,23 +43,18 @@ export const isArray = val =>
   !isNull(val) && val &&
     (Array.isArray ? Array.isArray(val) : val.constructor === Array);
 
-export const isPrime = (n) => {
-  if (n <= 1) {
-    return false;
-  }
+export const isPrime = n =>
+  (n <= 1 ?
+    false :
+    (function fn(divisor) {
+      if (n <= divisor) {
+        return true;
+      }
 
-  return (function fn(divisor) {
-    if (n <= divisor) {
-      return true;
-    }
-
-    if (n % divisor === 0) {
-      return false;
-    }
-
-    return fn(divisor + 1);
-  }(2));
-};
+      return (n % divisor === 0) ?
+        false :
+        fn(divisor + 1);
+    }(2)));
 
 export const isEqual = (a, b) => {
   if (a === b) {
@@ -107,7 +101,7 @@ export const isPalindrome = (str) => {
     return true;
   }
 
-  const word = lowercase(str).trim().replace(/[\W_]/g, '');
+  const word = str.toLowerCase().trim().replace(/[\W_]/g, '');
 
   return word === reverse(word);
 };

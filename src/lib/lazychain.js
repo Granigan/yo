@@ -9,9 +9,11 @@ import {
   rest,
   reverse,
   drop,
-  dropRight
+  dropRight,
+  pick,
+  omit
 } from './array';
-import {findKey, pick, omit} from './object';
+import {findKey} from './object';
 import {callFunctor} from './function';
 
 export default (data) => {

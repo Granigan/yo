@@ -1,4 +1,3 @@
-import chain from './chain';
 import {
   first,
   reverse,
@@ -202,27 +201,6 @@ export const fibonacci = (n = 0) => {
   return first(fib(n));
 };
 
-export const fizzbuzz = () =>
-  chain(range(101))
-    .rest()
-    .map((i) => {
-      const fizz = 'Fizz';
-      const buzz = 'Buzz';
-      const three = i % 3 === 0;
-      const five = i % 5 === 0;
-
-      if (three && five) {
-        return fizz + buzz;
-      } else if (three) {
-        return fizz;
-      } else if (five) {
-        return buzz;
-      }
-
-      return i;
-    })
-    .value();
-
 export const smallFizzbuzz = () => {
   /* eslint-disable */
   times(101,i=>console.log((i%3?'':'Fizz')+(i%5?'':'Buzz')||i));
@@ -262,7 +240,6 @@ export const reservedWords = () =>
   ];
 
 export const $ = (selector, context) => {
-  let element;
   let ctx = context; // damn eslint
 
   if (typeof document === 'undefined') {
@@ -273,9 +250,7 @@ export const $ = (selector, context) => {
     error('No selector provided');
   }
 
-  if (isObject(selector) || isArray(selector)) {
-    element = selector;
-  } else {
+  if (!isObject(selector) && !isArray(selector)) {
     const isClass = selector.match(/^\.[\w\d]/);
     const isId = selector.match(/^#[\w\d]/);
 
@@ -286,21 +261,19 @@ export const $ = (selector, context) => {
     ctx = ctx || document;
 
     if (ctx.querySelectorAll) {
-      if (isId) {
-        element = ctx.querySelector(selector);
-      } else {
-        element = ctx.querySelectorAll(selector);
-      }
-    } else {
-      if (isClass) {
-        element = ctx.getElementsByClassName(selector.replace('.', ''));
-      } else if (isId) {
-        element = ctx.getElementById(selector.replace('#', ''));
-      }
+      return isId ?
+        ctx.querySelector(selector) :
+        ctx.querySelectorAll(selector);
+    }
+
+    if (isClass) {
+      return ctx.getElementsByClassName(selector.replace('.', ''));
+    } else if (isId) {
+      return ctx.getElementById(selector.replace('#', ''));
     }
   }
 
-  return element;
+  return selector;
 };
 
 export const css = (selector, attr) => {

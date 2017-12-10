@@ -6,6 +6,8 @@ const babel = require('gulp-babel');
 const mocha = require('gulp-mocha');
 const watch = require('gulp-watch');
 const todo = require('gulp-todo');
+const browserify = require('gulp-browserify');
+
 
 const sourceFiles = 'src/**/*.js';
 const specFiles = 'spec/**/*.js';
@@ -33,6 +35,17 @@ gulp.task('babel', ['lint-src'], () =>
     }))
     .pipe(plumber())
     .pipe(gulp.dest('dist'))
+    .on('error', notify.onError('Error: <%= error.message %>'))
+);
+
+gulp.task('browserify', ['lint-src', 'babel'], () =>
+  gulp.src('./dist/yo.js')
+    .pipe(browserify({
+      insertGlobals : true,
+      transform: ['babelify']
+    }))
+    .pipe(plumber())
+    .pipe(gulp.dest('browserify'))
     .on('error', notify.onError('Error: <%= error.message %>'))
 );
 

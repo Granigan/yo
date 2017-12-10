@@ -1,4 +1,3 @@
-import {isFunction, isString} from './is';
 import {first, rest, reduce, map, reverse, reject, everyNth, size} from './array';
 
 const splitDelimiterPattern = /\.| |,|!|\?|:|;|-|_/g;
@@ -11,7 +10,7 @@ export const capitalize = str =>
 export const trim = str => str.trim();
 
 export const removeSubstrings = (str, substrings) => {
-  const subs = isString(substrings) ?
+  const subs = typeof substrings === 'string' ?
     map(substrings.split(','), trim) :
     substrings;
 
@@ -22,7 +21,7 @@ export const removeSubstrings = (str, substrings) => {
 };
 
 export const splitBy = (val, delimiter) =>
-  (isFunction(val) ? val() : val).split(delimiter);
+  (typeof val === 'function' ? val() : val).split(delimiter);
 
 export const words = (val) =>
   splitBy(val, ' ');

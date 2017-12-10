@@ -10,16 +10,15 @@ import {
   isTruthy
 } from './is';
 import {
-  forIn,
   firstKey,
   firstValue,
   reverseObject,
-  keys,
   values,
   get
 } from './object';
-import {max, sum} from './math';
-import {negate, booleanToInt, pipe} from './function';
+import {sum} from './math';
+import {max, negate, booleanToInt, pipe} from './function';
+import {forIn, keys} from './helper';
 
 const nativeSlice = Array.prototype.slice;
 
@@ -305,18 +304,23 @@ export const findDuplicates = (arr, useBinarySearch) =>
     return memo;
   }, []);
 
-export const skipDuplicates = (arr, useBinarySearch) => {
+export const unique = (arr, useBinarySearch) => {
   const duplicates = findDuplicates(arr, useBinarySearch);
 
   return reduce(arr, (memo, value) => {
     const inDuplicates = find(duplicates, value, useBinarySearch);
     const notFound = inDuplicates && !find(memo, value, useBinarySearch);
-    const unique = !inDuplicates || notFound;
-    return unique ? [...memo, value] : memo;
+    const uniqueValue = !inDuplicates || notFound;
+    return uniqueValue ? [...memo, value] : memo;
   }, []);
 };
 
-export const union = (a, b) => skipDuplicates(concat(a, b));
+export const skipDuplicates = unique;
+
+export const union = (a, b) => unique(concat(a, b));
+
+// TODO: add test
+export const intersection = (a, b) => filter(a, val => find(b, val));
 
 export const flip = (fn) => (...args) => fn(reverse(args));
 export const toArray = (...args) => flatten(args);

@@ -1,22 +1,10 @@
-import {isFunction, isObject} from './is';
 import {pipe} from './function';
+import {isFunction, isObject} from './is';
 import {first, reduce, reverse, compact, reject, size} from './array';
+import {forIn as helperForIn, keys as helperKeys} from './helper';
 
-export const forIn = (obj, fn) => {
-  for (const key in obj) {
-    fn(obj[key], key, obj);
-  }
-};
-
-export const keys = (obj) => {
-  if (isFunction(Object.keys)) {
-    return Object.keys(obj);
-  }
-
-  const returnValues = [];
-  forIn(obj, (val, key) => returnValues.push(key));
-  return returnValues;
-};
+export const forIn = helperForIn;
+export const keys = helperKeys;
 
 export const values = (val) => {
   if (isObject(val)) {
